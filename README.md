@@ -106,8 +106,35 @@ Beispiel: `MOCK_DELAY_MS=800 MOCK_TOKEN_TTL_SECONDS=120 npm start`
 npm test
 ```
 
-Startet den Mock auf einem freien Port mit fester Uhrzeit und prüft Login/Sperre, Barzahler-Suche,
-Quittungsliste, Upload inkl. Fehlerfällen, Storno, Anmeldung, Gebetszeiten, Kalender-Abo, CORS und Reset.
+- `test/api.test.js`: startet den Mock mit fester Uhrzeit und prüft Login/Sperre, Barzahler-Suche, Quittungsliste,
+  Upload inkl. Fehlerfällen, Storno, Anmeldung, Gebetszeiten, Kalender-Abo, CORS und Reset.
+- `test/contract.test.js`: Vertragstest gegen [`api/openapi.json`](api/openapi.json), die API-Beschreibung des
+  Backends. Jeder Backend-Endpunkt muss nachgebildet sein, und jede Antwort muss genau die Felder des
+  Backend-Schemas haben (keine fehlenden, keine zusätzlichen).
+
+## Automatischer Abgleich mit dem Backend
+
+```text
+maridcam-backend (develop)                       maridcam-mock
+docs/api/openapi.json oder SDD geändert ──────▶  Workflow „Mock an Backend-API anpassen“
+  .github/workflows/notify-mock.yml                1. Backend auschecken, api/openapi.json übernehmen
+  (repository_dispatch backend-api-changed)        2. Claude passt Endpunkte, Testdaten, Tests, README an
+                                                   3. npm test
+                                                   4. PR „Mock an Backend-API anpassen“ gegen develop
+```
+
+- Das Backend hält seine OpenAPI-Beschreibung als `docs/api/openapi.json` aktuell (`OpenApiSnapshotTest`).
+- [`api/backend-sync.json`](api/backend-sync.json) merkt sich den zuletzt abgeglichenen Backend-Commit. Der
+  Workflow schaut sich nur die Änderungen seitdem an.
+- Gibt es nichts anzupassen, entsteht kein PR. Der PR wird nie automatisch gemergt.
+- Von Hand starten: Actions → „Mock an Backend-API anpassen“ → „Run workflow“ (optional Backend-Branch).
+
+Benötigte Secrets:
+
+| Repo | Secret | Inhalt |
+|---|---|---|
+| maridcam-backend und maridcam-mock | `MARIDCAM_AUTOMATION_TOKEN` | Fine-grained Token (Owner `develkd`) für `maridcam-backend` und `maridcam-mock`: Contents read/write, Pull requests read/write |
+| maridcam-mock | `ANTHROPIC_API_KEY` **oder** `CLAUDE_CODE_OAUTH_TOKEN` | Zugang für die Claude Code Action (`claude setup-token` erzeugt den OAuth-Token) |
 
 ## Aufbau
 
@@ -121,9 +148,9 @@ src/
 ├── pdf.js               erzeugt die PDF-Belege der Testquittungen
 ├── prayer-calc.js       Näherungsberechnung der Gebetszeiten
 └── routes/              auth, cash-receipts, registration, prayer-times
+api/                     API-Beschreibung des Backends + zuletzt abgeglichener Commit
 data/                    Testdaten (JSON)
-test/                    API-Tests (node:test)
+test/                    API- und Vertragstests (node:test)
 ```
 
-Ändert sich ein API-Vertrag im Backend, wird der Mock im selben Zug angepasst (Endpunkt in `src/routes/`,
-Testdaten in `data/`, Test in `test/`).
+Änderungen am Mock von Hand: Endpunkt in `src/routes/`, Testdaten in `data/`, Tests in `test/`.

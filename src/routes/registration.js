@@ -20,6 +20,13 @@ function validIban(value) {
   return rest === 1;
 }
 
+/** SEPA-Mandatsreferenz wie im Backend (BE-017): MRD-<JJJJMMTT UTC>-<12 Zeichen>. */
+function mandateReference(now) {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const random = Array.from(crypto.randomBytes(12), (b) => alphabet[b % alphabet.length]).join('');
+  return `MRD-${now.toISOString().slice(0, 10).replace(/-/g, '')}-${random}`;
+}
+
 function ageOn(dateOfBirth, today) {
   const [by, bm, bd] = dateOfBirth.split('-').map(Number);
   const [ty, tm, td] = today.split('-').map(Number);
@@ -129,6 +136,7 @@ async function registerStudent(ctx) {
     personIdentifier: identifier,
     userAccountIdentifier: crypto.randomUUID(),
     accountStatus: 'PENDING_EMAIL_VERIFICATION',
+    mandateReference: method === 'SEPA_DIRECT_DEBIT' ? mandateReference(ctx.now) : null,
   });
 }
 

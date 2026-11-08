@@ -1,0 +1,830 @@
+{
+  "components" : {
+    "schemas" : {
+      "CashPayerPageResponse" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/CashPayerResponse"
+            },
+            "type" : "array"
+          },
+          "page" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "size" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "CashPayerResponse" : {
+        "properties" : {
+          "contributionAmount" : {
+            "type" : "number"
+          },
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "firstName" : {
+            "type" : "string"
+          },
+          "lastName" : {
+            "type" : "string"
+          },
+          "paidMonths" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "payerName" : {
+            "type" : "string"
+          },
+          "personIdentifier" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "CashReceiptCancellationRequest" : {
+        "properties" : {
+          "reason" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "CashReceiptDataRequest" : {
+        "properties" : {
+          "amount" : {
+            "exclusiveMinimum" : 0,
+            "type" : "number"
+          },
+          "months" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "payerName" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "pattern" : "^[^\\p{Cntrl}]*$",
+            "type" : "string"
+          },
+          "receiptDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "receiptNumber" : {
+            "maxLength" : 50,
+            "minLength" : 0,
+            "pattern" : "^[^\\p{Cntrl}]*$",
+            "type" : "string"
+          }
+        },
+        "required" : [ "amount", "payerName", "receiptDate", "receiptNumber" ],
+        "type" : "object"
+      },
+      "CashReceiptResponse" : {
+        "properties" : {
+          "amount" : {
+            "type" : "number"
+          },
+          "cancellationReason" : {
+            "type" : "string"
+          },
+          "cancelledAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "cancelledBy" : {
+            "type" : "string"
+          },
+          "contentType" : {
+            "type" : "string"
+          },
+          "fileName" : {
+            "type" : "string"
+          },
+          "months" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "payerName" : {
+            "type" : "string"
+          },
+          "receiptDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "receiptIdentifier" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "receiptNumber" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "uploadedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "uploadedBy" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "DailyPrayerTimesResponse" : {
+        "properties" : {
+          "asr" : {
+            "type" : "string"
+          },
+          "dhuhr" : {
+            "type" : "string"
+          },
+          "fajr" : {
+            "type" : "string"
+          },
+          "imsak" : {
+            "type" : "string"
+          },
+          "iqama" : {
+            "additionalProperties" : {
+              "type" : "string"
+            },
+            "type" : "object"
+          },
+          "isha" : {
+            "type" : "string"
+          },
+          "jumua" : {
+            "type" : "string"
+          },
+          "jumua2" : {
+            "type" : "string"
+          },
+          "maghrib" : {
+            "type" : "string"
+          },
+          "shuruq" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "LoginRequest" : {
+        "properties" : {
+          "email" : {
+            "maxLength" : 320,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "password" : {
+            "maxLength" : 256,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "password" ],
+        "type" : "object"
+      },
+      "LoginResponse" : {
+        "properties" : {
+          "accessToken" : {
+            "type" : "string"
+          },
+          "expiresIn" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "roles" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "tokenType" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "MosqueInfoResponse" : {
+        "properties" : {
+          "city" : {
+            "type" : "string"
+          },
+          "latitude" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "logoUrl" : {
+            "type" : "string"
+          },
+          "longitude" : {
+            "format" : "double",
+            "type" : "number"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "timezone" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "NextPrayerResponse" : {
+        "properties" : {
+          "minutesUntil" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "time" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "PrayerTimesResponse" : {
+        "properties" : {
+          "calendar" : {
+            "additionalProperties" : {
+              "items" : {
+                "items" : {
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "type" : "array"
+            },
+            "type" : "object"
+          },
+          "date" : {
+            "type" : "string"
+          },
+          "hijriDate" : {
+            "type" : "string"
+          },
+          "iqamaCalendar" : {
+            "additionalProperties" : {
+              "items" : {
+                "items" : {
+                  "type" : "string"
+                },
+                "type" : "array"
+              },
+              "type" : "array"
+            },
+            "type" : "object"
+          },
+          "mosque" : {
+            "$ref" : "#/components/schemas/MosqueInfoResponse"
+          },
+          "nextPrayer" : {
+            "$ref" : "#/components/schemas/NextPrayerResponse"
+          },
+          "times" : {
+            "$ref" : "#/components/schemas/DailyPrayerTimesResponse"
+          }
+        },
+        "type" : "object"
+      },
+      "RegisterStudentAddressRequest" : {
+        "properties" : {
+          "city" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "country" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "houseNumber" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "postalCode" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "street" : {
+            "minLength" : 1,
+            "type" : "string"
+          }
+        },
+        "required" : [ "city", "country", "houseNumber", "postalCode", "street" ],
+        "type" : "object"
+      },
+      "RegisterStudentBankRequest" : {
+        "properties" : {
+          "accountHolder" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "contributionAmount" : {
+            "minimum" : 0,
+            "type" : "number"
+          },
+          "iban" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "contributionAmount" ],
+        "type" : "object"
+      },
+      "RegisterStudentGuardianAddressRequest" : {
+        "properties" : {
+          "city" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "country" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "houseNumber" : {
+            "maxLength" : 30,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "postalCode" : {
+            "maxLength" : 20,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "street" : {
+            "maxLength" : 150,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "city", "houseNumber", "postalCode", "street" ],
+        "type" : "object"
+      },
+      "RegisterStudentGuardianRequest" : {
+        "properties" : {
+          "address" : {
+            "$ref" : "#/components/schemas/RegisterStudentGuardianAddressRequest"
+          },
+          "email" : {
+            "format" : "email",
+            "maxLength" : 254,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "firstName" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "lastName" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "phoneNumber" : {
+            "maxLength" : 50,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "email", "firstName", "lastName", "phoneNumber" ],
+        "type" : "object"
+      },
+      "RegisterStudentPersonRequest" : {
+        "properties" : {
+          "address" : {
+            "$ref" : "#/components/schemas/RegisterStudentAddressRequest"
+          },
+          "dateOfBirth" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "firstName" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "gender" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "lastName" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "phoneNumber" : {
+            "minLength" : 1,
+            "type" : "string"
+          }
+        },
+        "required" : [ "address", "dateOfBirth", "firstName", "gender", "lastName", "phoneNumber" ],
+        "type" : "object"
+      },
+      "RegisterStudentRequest" : {
+        "properties" : {
+          "address" : {
+            "$ref" : "#/components/schemas/RegisterStudentAddressRequest"
+          },
+          "bank" : {
+            "$ref" : "#/components/schemas/RegisterStudentBankRequest"
+          },
+          "email" : {
+            "minLength" : 1,
+            "type" : "string"
+          },
+          "guardian" : {
+            "$ref" : "#/components/schemas/RegisterStudentGuardianRequest"
+          },
+          "paymentMethod" : {
+            "pattern" : "SEPA_DIRECT_DEBIT|BANK_TRANSFER|CASH",
+            "type" : "string"
+          },
+          "person" : {
+            "$ref" : "#/components/schemas/RegisterStudentPersonRequest"
+          },
+          "privacyAccepted" : {
+            "type" : "boolean"
+          },
+          "sepaConsent" : {
+            "type" : "boolean"
+          },
+          "termsAccepted" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "address", "bank", "email", "paymentMethod", "person", "privacyAccepted", "sepaConsent", "termsAccepted" ],
+        "type" : "object"
+      },
+      "RegisterStudentResponse" : {
+        "properties" : {
+          "accountStatus" : {
+            "enum" : [ "PENDING_EMAIL_VERIFICATION", "ACTIVE", "BLOCKED", "DELETED" ],
+            "type" : "string"
+          },
+          "mandateReference" : {
+            "type" : "string"
+          },
+          "personIdentifier" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "userAccountIdentifier" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      }
+    },
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "bearerFormat" : "JWT",
+        "description" : "Access Token aus POST /v1/auth/login (Rolle ADMIN)",
+        "scheme" : "bearer",
+        "type" : "http"
+      }
+    }
+  },
+  "info" : {
+    "contact" : {
+      "name" : "MaridCam Team",
+      "url" : "https://github.com/anomalyco/maridcam-backend"
+    },
+    "description" : "REST-API für die MaridCam Plattform – Studentenregistrierung, Gebetszeiten, Admin-Login und Barzahlungs-Quittungen.",
+    "title" : "MaridCam Backend API",
+    "version" : "1.0.0"
+  },
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/v1/admin/cash-payers" : {
+      "get" : {
+        "description" : "Nur Registrierungen mit paymentMethod = CASH; query sucht case-insensitive in Vor-/Nachname der Person und der Erziehungsberechtigten. Sortierung Nachname, Vorname.",
+        "operationId" : "search",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "page",
+          "required" : false,
+          "schema" : {
+            "default" : 0,
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "size",
+          "required" : false,
+          "schema" : {
+            "default" : 20,
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CashPayerPageResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "summary" : "Barzahler suchen",
+        "tags" : [ "Admin – Barzahlungen" ]
+      }
+    },
+    "/v1/admin/cash-receipts/{receiptIdentifier}/cancellation" : {
+      "post" : {
+        "description" : "Markiert die Quittung als storniert (Grund, Zeitpunkt, Bearbeiter aus dem Token). Quittung und Datei bleiben unverändert gespeichert, die Quittungsnummer bleibt vergeben, die Monate gelten wieder als offen. Nicht umkehrbar. Body: {\"reason\": \"...\"} (1–500 Zeichen). 200 = aktualisierte Quittung, 400 VALIDATION_FAILED (reason), 404 RECEIPT_NOT_FOUND, 409 RECEIPT_ALREADY_CANCELLED.",
+        "operationId" : "cancel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "receiptIdentifier",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CashReceiptCancellationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CashReceiptResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "summary" : "Quittung stornieren",
+        "tags" : [ "Admin – Barzahlungen" ]
+      }
+    },
+    "/v1/admin/cash-receipts/{receiptIdentifier}/file" : {
+      "get" : {
+        "description" : "Original-Bytes als Download, auch für stornierte Quittungen. 404 RECEIPT_NOT_FOUND.",
+        "operationId" : "file",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "receiptIdentifier",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "format" : "byte",
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "summary" : "Quittungsdatei abrufen",
+        "tags" : [ "Admin – Barzahlungen" ]
+      }
+    },
+    "/v1/admin/persons/{personIdentifier}/cash-receipts" : {
+      "get" : {
+        "description" : "Neueste zuerst, inkl. stornierter Quittungen (status = CANCELLED). 404 PERSON_NOT_FOUND.",
+        "operationId" : "list",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "personIdentifier",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/CashReceiptResponse"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "summary" : "Quittungen einer Person",
+        "tags" : [ "Admin – Barzahlungen" ]
+      },
+      "post" : {
+        "description" : "multipart/form-data mit 'file' (PDF/JPEG/PNG, max. 10 MB, Typ per Signatur) und 'data' (application/json). 404 PERSON_NOT_FOUND, 409 PAYMENT_METHOD_NOT_CASH / RECEIPT_NUMBER_ALREADY_EXISTS / MONTH_ALREADY_PAID (nur gültige Quittungen zählen), 413 FILE_TOO_LARGE, 415 UNSUPPORTED_FILE_TYPE.",
+        "operationId" : "upload",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "personIdentifier",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties" : {
+                  "data" : {
+                    "$ref" : "#/components/schemas/CashReceiptDataRequest"
+                  },
+                  "file" : {
+                    "format" : "binary",
+                    "type" : "string"
+                  }
+                },
+                "required" : [ "data" ],
+                "type" : "object"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CashReceiptResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "summary" : "Quittung hochladen",
+        "tags" : [ "Admin – Barzahlungen" ]
+      }
+    },
+    "/v1/auth/login" : {
+      "post" : {
+        "description" : "Liefert ein Bearer-Token (JWT, 3600 s) für /v1/admin/**. 401 INVALID_CREDENTIALS, 429 LOGIN_TEMPORARILY_LOCKED nach 5 Fehlversuchen (15 Minuten).",
+        "operationId" : "login",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LoginResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Admin anmelden",
+        "tags" : [ "Auth" ]
+      }
+    },
+    "/v1/prayer-times" : {
+      "get" : {
+        "operationId" : "getPrayerTimes",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "year",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "month",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PrayerTimesResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "prayer-times-controller" ]
+      }
+    },
+    "/v1/student-registrations" : {
+      "post" : {
+        "operationId" : "register",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RegisterStudentRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RegisterStudentResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "register-student-controller" ]
+      }
+    }
+  },
+  "tags" : [ {
+    "description" : "Barzahler suchen und Quittungen zuordnen (Rolle ADMIN)",
+    "name" : "Admin – Barzahlungen"
+  }, {
+    "description" : "Admin-Login (JWT)",
+    "name" : "Auth"
+  } ]
+}
