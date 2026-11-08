@@ -1,0 +1,703 @@
+[
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000001",
+    "firstName": "Elif",
+    "lastName": "Demir",
+    "dateOfBirth": "2014-03-01",
+    "gender": "FEMALE",
+    "email": "elif.demir1@example.com",
+    "phoneNumber": "+49 30 7007919",
+    "address": {
+      "street": "Mariendorfer Damm",
+      "houseNumber": "11",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Ahmet",
+        "lastName": "Demir",
+        "email": "ahmet.demir1@example.com",
+        "phoneNumber": "+49 176 5104729"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-117}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000002",
+    "firstName": "Yusuf",
+    "lastName": "Kaya",
+    "dateOfBirth": "2012-07-19",
+    "gender": "MALE",
+    "email": "yusuf.kaya2@example.com",
+    "phoneNumber": "+49 30 7015838",
+    "address": {
+      "street": "Rathausstraße",
+      "houseNumber": "12",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Fatma",
+        "lastName": "Kaya",
+        "email": "fatma.kaya2@example.com",
+        "phoneNumber": "+49 176 5209458"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-114}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000003",
+    "firstName": "Zeynep",
+    "lastName": "Yılmaz",
+    "dateOfBirth": "2015-11-02",
+    "gender": "FEMALE",
+    "email": "zeynep.yilmaz3@example.com",
+    "phoneNumber": "+49 30 7023757",
+    "address": {
+      "street": "Ullsteinstraße",
+      "houseNumber": "13",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Mehmet",
+        "lastName": "Yılmaz",
+        "email": "mehmet.yilmaz3@example.com",
+        "phoneNumber": "+49 176 5314187"
+      },
+      {
+        "firstName": "Ayşe",
+        "lastName": "Yılmaz",
+        "email": "ayse.yilmaz31@example.com",
+        "phoneNumber": "+49 176 5314188"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-111}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000004",
+    "firstName": "Ömer",
+    "lastName": "Çelik",
+    "dateOfBirth": "2010-01-25",
+    "gender": "MALE",
+    "email": "omer.celik4@example.com",
+    "phoneNumber": "+49 30 7031676",
+    "address": {
+      "street": "Prühßstraße",
+      "houseNumber": "14",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 30,
+    "guardians": [
+      {
+        "firstName": "Hatice",
+        "lastName": "Çelik",
+        "email": "hatice.celik4@example.com",
+        "phoneNumber": "+49 176 5418916"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-108}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000005",
+    "firstName": "Amira",
+    "lastName": "Hassan",
+    "dateOfBirth": "2001-05-14",
+    "gender": "FEMALE",
+    "email": "amira.hassan5@example.com",
+    "phoneNumber": "+49 30 7039595",
+    "address": {
+      "street": "Kaiserstraße",
+      "houseNumber": "15",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 20,
+    "guardians": [],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-105}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000006",
+    "firstName": "Leon",
+    "lastName": "Schneider",
+    "dateOfBirth": "1998-09-30",
+    "gender": "MALE",
+    "email": "leon.schneider6@example.com",
+    "phoneNumber": "+49 30 7047514",
+    "address": {
+      "street": "Friedenstraße",
+      "houseNumber": "16",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-102}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000007",
+    "firstName": "Meryem",
+    "lastName": "Arslan",
+    "dateOfBirth": "2013-04-12",
+    "gender": "FEMALE",
+    "email": "meryem.arslan7@example.com",
+    "phoneNumber": "+49 30 7055433",
+    "address": {
+      "street": "Mariendorfer Damm",
+      "houseNumber": "17",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Ali",
+        "lastName": "Arslan",
+        "email": "ali.arslan7@example.com",
+        "phoneNumber": "+49 176 5733103"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-99}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000008",
+    "firstName": "Hamza",
+    "lastName": "Aydın",
+    "dateOfBirth": "2016-08-08",
+    "gender": "MALE",
+    "email": "hamza.aydin8@example.com",
+    "phoneNumber": "+49 30 7063352",
+    "address": {
+      "street": "Rathausstraße",
+      "houseNumber": "18",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 15,
+    "guardians": [
+      {
+        "firstName": "Emine",
+        "lastName": "Aydın",
+        "email": "emine.aydin8@example.com",
+        "phoneNumber": "+49 176 5837832"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-96}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000009",
+    "firstName": "Selin",
+    "lastName": "Öztürk",
+    "dateOfBirth": "2011-12-24",
+    "gender": "FEMALE",
+    "email": "selin.ozturk9@example.com",
+    "phoneNumber": "+49 30 7071271",
+    "address": {
+      "street": "Ullsteinstraße",
+      "houseNumber": "19",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Kemal",
+        "lastName": "Öztürk",
+        "email": "kemal.ozturk9@example.com",
+        "phoneNumber": "+49 176 5942561"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-93}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000010",
+    "firstName": "İbrahim",
+    "lastName": "Yıldız",
+    "dateOfBirth": "1985-02-11",
+    "gender": "MALE",
+    "email": "ibrahim.yildiz10@example.com",
+    "phoneNumber": "+49 30 7079190",
+    "address": {
+      "street": "Prühßstraße",
+      "houseNumber": "20",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 40,
+    "guardians": [],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-90}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000011",
+    "firstName": "Ayla",
+    "lastName": "Koç",
+    "dateOfBirth": "2009-06-30",
+    "gender": "FEMALE",
+    "email": "ayla.koc11@example.com",
+    "phoneNumber": "+49 30 7087109",
+    "address": {
+      "street": "Kaiserstraße",
+      "houseNumber": "21",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Serkan",
+        "lastName": "Koç",
+        "email": "serkan.koc11@example.com",
+        "phoneNumber": "+49 176 6152019"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-87}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000012",
+    "firstName": "Can",
+    "lastName": "Şahin",
+    "dateOfBirth": "2014-10-10",
+    "gender": "MALE",
+    "email": "can.sahin12@example.com",
+    "phoneNumber": "+49 30 7095028",
+    "address": {
+      "street": "Friedenstraße",
+      "houseNumber": "22",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Derya",
+        "lastName": "Şahin",
+        "email": "derya.sahin12@example.com",
+        "phoneNumber": "+49 176 6256748"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-84}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000013",
+    "firstName": "Mariam",
+    "lastName": "Ahmadi",
+    "dateOfBirth": "2012-01-17",
+    "gender": "FEMALE",
+    "email": "mariam.ahmadi13@example.com",
+    "phoneNumber": "+49 30 7102947",
+    "address": {
+      "street": "Mariendorfer Damm",
+      "houseNumber": "23",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 20,
+    "guardians": [
+      {
+        "firstName": "Farid",
+        "lastName": "Ahmadi",
+        "email": "farid.ahmadi13@example.com",
+        "phoneNumber": "+49 176 6361477"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-81}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000014",
+    "firstName": "Bilal",
+    "lastName": "Doğan",
+    "dateOfBirth": "2015-03-28",
+    "gender": "MALE",
+    "email": "bilal.dogan14@example.com",
+    "phoneNumber": "+49 30 7110866",
+    "address": {
+      "street": "Rathausstraße",
+      "houseNumber": "24",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Gül",
+        "lastName": "Doğan",
+        "email": "gul.dogan14@example.com",
+        "phoneNumber": "+49 176 6466206"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-78}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000015",
+    "firstName": "Esra",
+    "lastName": "Kılıç",
+    "dateOfBirth": "2010-09-09",
+    "gender": "FEMALE",
+    "email": "esra.kilic15@example.com",
+    "phoneNumber": "+49 30 7118785",
+    "address": {
+      "street": "Ullsteinstraße",
+      "houseNumber": "25",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Murat",
+        "lastName": "Kılıç",
+        "email": "murat.kilic15@example.com",
+        "phoneNumber": "+49 176 6570935"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-75}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000016",
+    "firstName": "Emir",
+    "lastName": "Aksoy",
+    "dateOfBirth": "2013-12-01",
+    "gender": "MALE",
+    "email": "emir.aksoy16@example.com",
+    "phoneNumber": "+49 30 7126704",
+    "address": {
+      "street": "Prühßstraße",
+      "houseNumber": "26",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Sibel",
+        "lastName": "Aksoy",
+        "email": "sibel.aksoy16@example.com",
+        "phoneNumber": "+49 176 6675664"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-72}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000017",
+    "firstName": "Hira",
+    "lastName": "Polat",
+    "dateOfBirth": "2016-02-14",
+    "gender": "FEMALE",
+    "email": "hira.polat17@example.com",
+    "phoneNumber": "+49 30 7134623",
+    "address": {
+      "street": "Kaiserstraße",
+      "houseNumber": "27",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 15,
+    "guardians": [
+      {
+        "firstName": "Osman",
+        "lastName": "Polat",
+        "email": "osman.polat17@example.com",
+        "phoneNumber": "+49 176 6780393"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-69}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000018",
+    "firstName": "Musa",
+    "lastName": "Erdem",
+    "dateOfBirth": "2011-05-05",
+    "gender": "MALE",
+    "email": "musa.erdem18@example.com",
+    "phoneNumber": "+49 30 7142542",
+    "address": {
+      "street": "Friedenstraße",
+      "houseNumber": "28",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Nur",
+        "lastName": "Erdem",
+        "email": "nur.erdem18@example.com",
+        "phoneNumber": "+49 176 6885122"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-66}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000019",
+    "firstName": "Defne",
+    "lastName": "Kurt",
+    "dateOfBirth": "2014-07-21",
+    "gender": "FEMALE",
+    "email": "defne.kurt19@example.com",
+    "phoneNumber": "+49 30 7150461",
+    "address": {
+      "street": "Mariendorfer Damm",
+      "houseNumber": "29",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Burak",
+        "lastName": "Kurt",
+        "email": "burak.kurt19@example.com",
+        "phoneNumber": "+49 176 6989851"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-63}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000020",
+    "firstName": "Yasin",
+    "lastName": "Özdemir",
+    "dateOfBirth": "2012-11-11",
+    "gender": "MALE",
+    "email": "yasin.ozdemir20@example.com",
+    "phoneNumber": "+49 30 7158380",
+    "address": {
+      "street": "Rathausstraße",
+      "houseNumber": "30",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Leyla",
+        "lastName": "Özdemir",
+        "email": "leyla.ozdemir20@example.com",
+        "phoneNumber": "+49 176 7094580"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-60}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000021",
+    "firstName": "Sara",
+    "lastName": "Bayram",
+    "dateOfBirth": "2009-04-03",
+    "gender": "FEMALE",
+    "email": "sara.bayram21@example.com",
+    "phoneNumber": "+49 30 7166299",
+    "address": {
+      "street": "Ullsteinstraße",
+      "houseNumber": "31",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 30,
+    "guardians": [
+      {
+        "firstName": "Hakan",
+        "lastName": "Bayram",
+        "email": "hakan.bayram21@example.com",
+        "phoneNumber": "+49 176 7199309"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-57}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000022",
+    "firstName": "Kerem",
+    "lastName": "Güneş",
+    "dateOfBirth": "2015-08-19",
+    "gender": "MALE",
+    "email": "kerem.gunes22@example.com",
+    "phoneNumber": "+49 30 7174218",
+    "address": {
+      "street": "Prühßstraße",
+      "houseNumber": "32",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Tülay",
+        "lastName": "Güneş",
+        "email": "tulay.gunes22@example.com",
+        "phoneNumber": "+49 176 7304038"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-54}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000023",
+    "firstName": "Fatima",
+    "lastName": "Rahimi",
+    "dateOfBirth": "1992-10-27",
+    "gender": "FEMALE",
+    "email": "fatima.rahimi23@example.com",
+    "phoneNumber": "+49 30 7182137",
+    "address": {
+      "street": "Kaiserstraße",
+      "houseNumber": "33",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 25,
+    "guardians": [],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-51}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000024",
+    "firstName": "Ahmet",
+    "lastName": "Demir",
+    "dateOfBirth": "2016-06-06",
+    "gender": "MALE",
+    "email": "ahmet.demir24@example.com",
+    "phoneNumber": "+49 30 7190056",
+    "address": {
+      "street": "Friedenstraße",
+      "houseNumber": "34",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "CASH",
+    "contributionAmount": 15,
+    "guardians": [
+      {
+        "firstName": "Ahmet",
+        "lastName": "Demir",
+        "email": "ahmet.demir24@example.com",
+        "phoneNumber": "+49 176 7513496"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-48}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000025",
+    "firstName": "Max",
+    "lastName": "Mustermann",
+    "dateOfBirth": "2000-01-01",
+    "gender": "MALE",
+    "email": "max.mustermann25@example.com",
+    "phoneNumber": "+49 30 7197975",
+    "address": {
+      "street": "Mariendorfer Damm",
+      "houseNumber": "35",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "SEPA_DIRECT_DEBIT",
+    "contributionAmount": 25,
+    "iban": "DE89370400440532013000",
+    "accountHolder": "Max Mustermann",
+    "guardians": [],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-45}}"
+  },
+  {
+    "identifier": "5e0c1a00-0000-4000-8000-000000000026",
+    "firstName": "Lena",
+    "lastName": "Becker",
+    "dateOfBirth": "2012-02-02",
+    "gender": "FEMALE",
+    "email": "lena.becker26@example.com",
+    "phoneNumber": "+49 30 7205894",
+    "address": {
+      "street": "Rathausstraße",
+      "houseNumber": "36",
+      "postalCode": "12107",
+      "city": "Berlin",
+      "country": "Deutschland"
+    },
+    "paymentMethod": "BANK_TRANSFER",
+    "contributionAmount": 25,
+    "guardians": [
+      {
+        "firstName": "Tobias",
+        "lastName": "Becker",
+        "email": "tobias.becker26@example.com",
+        "phoneNumber": "+49 176 7722954"
+      }
+    ],
+    "accountStatus": "PENDING_EMAIL_VERIFICATION",
+    "registeredAt": "{{datetime-42}}"
+  }
+]

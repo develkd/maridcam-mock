@@ -1,0 +1,52 @@
+[
+  {
+    "identifier": "ad000000-0000-4000-8000-000000000001",
+    "email": "admin@maridcam.local",
+    "password": "Admin-Dev-2026!",
+    "passwordHash": "$argon2id$v=19$m=60000,t=5,p=1$XRtYI+GHEtCcMc5KxxlhKw$BVgQERDqjKVol/PPHTz6UB5qpSzmPWwJBiWWjRv3pWc",
+    "firstName": "Vereins",
+    "lastName": "Admin",
+    "roles": [
+      "ADMIN"
+    ],
+    "status": "ACTIVE",
+    "note": "Standard-Admin, gleiche Zugangsdaten wie im dev-Profil des Backends"
+  },
+  {
+    "identifier": "ad000000-0000-4000-8000-000000000002",
+    "email": "sekretariat@maridcam.local",
+    "password": "Sekretariat-Dev-2026!",
+    "passwordHash": "$argon2id$v=19$m=60000,t=5,p=1$xegG1gah5m6S1w5jzrnyig$iT+Z5JntH4wLhBtxXJlAo+T8XAu/5Bsy2/NCK5hGejc",
+    "firstName": "Vereins",
+    "lastName": "Sekretariat",
+    "roles": [
+      "ADMIN"
+    ],
+    "status": "ACTIVE",
+    "note": "Zweiter Admin, z. B. um 'Hochgeladen von' / 'Storniert von' zu unterscheiden"
+  },
+  {
+    "identifier": "ad000000-0000-4000-8000-000000000003",
+    "email": "lehrer@maridcam.local",
+    "password": "Lehrer-Dev-2026!",
+    "passwordHash": "$argon2id$v=19$m=60000,t=5,p=1$9n25n7N4rNWkaN5IiIeXHg$qMjdEKd8lkg2GQIK1WFQCY8pv43mk6JvweNtH1eDYzg",
+    "firstName": "Yunus",
+    "lastName": "Lehrer",
+    "roles": [],
+    "status": "ACTIVE",
+    "note": "Konto ohne Rolle ADMIN: Anmeldung schlägt mit INVALID_CREDENTIALS fehl"
+  },
+  {
+    "identifier": "ad000000-0000-4000-8000-000000000004",
+    "email": "gesperrt@maridcam.local",
+    "password": "Gesperrt-Dev-2026!",
+    "passwordHash": "$argon2id$v=19$m=60000,t=5,p=1$r383lqlsBSCK8ei4snSNyg$XZ3EL8ksYrZXEHjZPezMaR+fUoVVdrhw9Wv/m3s3U/M",
+    "firstName": "Gesperrtes",
+    "lastName": "Konto",
+    "roles": [
+      "ADMIN"
+    ],
+    "status": "BLOCKED",
+    "note": "Gesperrtes Konto: Anmeldung schlägt mit INVALID_CREDENTIALS fehl"
+  }
+]

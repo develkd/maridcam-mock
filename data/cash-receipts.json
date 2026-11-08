@@ -1,0 +1,340 @@
+[
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000001",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000001",
+    "receiptNumber": "Q-1001",
+    "receiptDate": "{{month-2}}-04",
+    "amount": 25,
+    "months": [
+      "{{month-2}}"
+    ],
+    "payerName": "Ahmet Demir",
+    "fileName": "quittung-q-1001.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000002",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000001",
+    "receiptNumber": "Q-1014",
+    "receiptDate": "{{month-1}}-03",
+    "amount": 25,
+    "months": [
+      "{{month-1}}"
+    ],
+    "payerName": "Ahmet Demir",
+    "fileName": "Scan Quittung Demir.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000003",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000001",
+    "receiptNumber": "Q-1027",
+    "receiptDate": "{{date-2}}",
+    "amount": 25,
+    "months": [
+      "{{month}}"
+    ],
+    "payerName": "Ahmet Demir",
+    "fileName": "quittung-q-1027.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000004",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000002",
+    "receiptNumber": "Q-1015",
+    "receiptDate": "{{month-1}}-06",
+    "amount": 25,
+    "months": [
+      "{{month-1}}"
+    ],
+    "payerName": "Fatma Kaya",
+    "fileName": "quittung-q-1015.pdf",
+    "uploadedBy": "sekretariat@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000005",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000003",
+    "receiptNumber": "Q-1002",
+    "receiptDate": "{{month-2}}-02",
+    "amount": 25,
+    "months": [
+      "{{month-2}}"
+    ],
+    "payerName": "Mehmet Yılmaz",
+    "fileName": "quittung-q-1002.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": {
+      "cancelledAt": "{{month-2}}-02T16:40:00Z",
+      "cancelledBy": "sekretariat@maridcam.local",
+      "reason": "Falscher Person zugeordnet, gehört zu Zeynep Yılmaz (Geschwisterkind). Neue Quittung Q-1003 hochgeladen."
+    }
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000006",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000003",
+    "receiptNumber": "Q-1003",
+    "receiptDate": "{{month-2}}-02",
+    "amount": 75,
+    "months": [
+      "{{month-2}}",
+      "{{month-1}}",
+      "{{month}}"
+    ],
+    "payerName": "Mehmet Yılmaz",
+    "fileName": "quittung-q-1003.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000007",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000005",
+    "receiptNumber": "Q-1004",
+    "receiptDate": "{{month-3}}-10",
+    "amount": 60,
+    "months": [
+      "{{month-3}}",
+      "{{month-2}}",
+      "{{month-1}}"
+    ],
+    "payerName": "Amira Hassan",
+    "fileName": "quittung-q-1004.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000008",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000006",
+    "receiptNumber": "Q-1028",
+    "receiptDate": "{{date-1}}",
+    "amount": 50,
+    "months": [
+      "{{month}}",
+      "{{month+1}}"
+    ],
+    "payerName": "Leon Schneider",
+    "fileName": "quittung-q-1028.pdf",
+    "uploadedBy": "sekretariat@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000009",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000007",
+    "receiptNumber": "Q-1016",
+    "receiptDate": "{{month-1}}-05",
+    "amount": 25,
+    "months": [
+      "{{month-1}}"
+    ],
+    "payerName": "Ali Arslan",
+    "fileName": "quittung-q-1016.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000010",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000007",
+    "receiptNumber": "Q-1029",
+    "receiptDate": "{{date-3}}",
+    "amount": 52,
+    "months": [
+      "{{month}}"
+    ],
+    "payerName": "Ali Arslan",
+    "fileName": "quittung-q-1029.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": {
+      "cancelledAt": "{{datetime-1}}",
+      "cancelledBy": "admin@maridcam.local",
+      "reason": "Betrag falsch eingetragen (52 € statt 25 €). Papierquittung wurde neu ausgestellt."
+    }
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000011",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000008",
+    "receiptNumber": "Q-1017",
+    "receiptDate": "{{month-1}}-07",
+    "amount": 15,
+    "months": [
+      "{{month-1}}"
+    ],
+    "payerName": "Emine Aydın",
+    "fileName": "quittung-q-1017.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000012",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000008",
+    "receiptNumber": "Q-1030",
+    "receiptDate": "{{date-4}}",
+    "amount": 15,
+    "months": [
+      "{{month}}"
+    ],
+    "payerName": "Emine Aydın",
+    "fileName": "quittung-q-1030.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000013",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000010",
+    "receiptNumber": "Q-1031",
+    "receiptDate": "{{date-1}}",
+    "amount": 40,
+    "months": [
+      "{{month}}"
+    ],
+    "payerName": "İbrahim Yıldız",
+    "fileName": "quittung-q-1031.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000014",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000011",
+    "receiptNumber": "Q-1005",
+    "receiptDate": "{{month-4}}-08",
+    "amount": 50,
+    "months": [
+      "{{month-4}}",
+      "{{month-3}}"
+    ],
+    "payerName": "Serkan Koç",
+    "fileName": "quittung-q-1005.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000015",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000011",
+    "receiptNumber": "Q-1018",
+    "receiptDate": "{{month-2}}-09",
+    "amount": 50,
+    "months": [
+      "{{month-2}}",
+      "{{month-1}}"
+    ],
+    "payerName": "Serkan Koç",
+    "fileName": "quittung-q-1018.pdf",
+    "uploadedBy": "sekretariat@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000016",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000013",
+    "receiptNumber": "Q-1032",
+    "receiptDate": "{{date-2}}",
+    "amount": 20,
+    "months": [
+      "{{month}}"
+    ],
+    "payerName": "Farid Ahmadi",
+    "fileName": "quittung-q-1032.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000017",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000014",
+    "receiptNumber": "Q-1019",
+    "receiptDate": "{{month-1}}-11",
+    "amount": 25,
+    "months": [
+      "{{month-1}}"
+    ],
+    "payerName": "Gül Doğan",
+    "fileName": "quittung-q-1019.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000018",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000016",
+    "receiptNumber": "Q-1033",
+    "receiptDate": "{{date-1}}",
+    "amount": 25,
+    "months": [
+      "{{month}}"
+    ],
+    "payerName": "Sibel Aksoy",
+    "fileName": "quittung-q-1033.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000019",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000018",
+    "receiptNumber": "Q-1020",
+    "receiptDate": "{{month-1}}-02",
+    "amount": 50,
+    "months": [
+      "{{month-1}}",
+      "{{month}}"
+    ],
+    "payerName": "Nur Erdem",
+    "fileName": "quittung-q-1020.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000020",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000020",
+    "receiptNumber": "Q-1034",
+    "receiptDate": "{{date-3}}",
+    "amount": 25,
+    "months": [
+      "{{month}}"
+    ],
+    "payerName": "Leyla Özdemir",
+    "fileName": "quittung-q-1034.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000021",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000021",
+    "receiptNumber": "Q-1021",
+    "receiptDate": "{{month-1}}-12",
+    "amount": 30,
+    "months": [
+      "{{month-1}}"
+    ],
+    "payerName": "Hakan Bayram",
+    "fileName": "quittung-q-1021.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000022",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000023",
+    "receiptNumber": "Q-1035",
+    "receiptDate": "{{date-1}}",
+    "amount": 25,
+    "months": [
+      "{{month}}"
+    ],
+    "payerName": "Fatima Rahimi",
+    "fileName": "quittung-q-1035.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  },
+  {
+    "receiptIdentifier": "c0ffee00-0000-4000-8000-000000000023",
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000024",
+    "receiptNumber": "Q-1036",
+    "receiptDate": "{{date-2}}",
+    "amount": 15,
+    "months": [
+      "{{month}}"
+    ],
+    "payerName": "Ahmet Demir",
+    "fileName": "quittung-q-1036.pdf",
+    "uploadedBy": "admin@maridcam.local",
+    "cancellation": null
+  }
+]

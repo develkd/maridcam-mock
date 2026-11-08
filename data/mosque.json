@@ -1,0 +1,20 @@
+{
+  "mosque": {
+    "name": "Mariendorf Moschee e.V.",
+    "city": "Berlin",
+    "timezone": "Europe/Berlin",
+    "latitude": 52.448621019562,
+    "longitude": 13.384826481342,
+    "logoUrl": ""
+  },
+  "calculation": {
+    "fajrAngle": 18,
+    "ishaAngle": 17,
+    "asrShadowFactor": 1,
+    "adjustMinutes": { "fajr": 0, "shuruq": -7, "dhuhr": 7, "asr": 4, "maghrib": 7, "isha": 0 },
+    "imsakMinutesBeforeFajr": 0
+  },
+  "iqamaMinutesAfter": { "fajr": 20, "dhuhr": 10, "asr": 10, "maghrib": 5, "isha": 10 },
+  "jumuaAsDhuhr": true,
+  "jumua2": "12:30"
+}

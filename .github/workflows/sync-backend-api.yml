@@ -1,0 +1,176 @@
+name: Mock an Backend-API anpassen
+
+# Wird vom Backend angestoßen (maridcam-backend/.github/workflows/notify-mock.yml), sobald sich auf develop die
+# API-Beschreibung (docs/api/openapi.json) oder eine SDD ändert. Claude passt den Mock an, der Workflow öffnet einen PR.
+#
+# Secrets in diesem Repository:
+#   MARIDCAM_AUTOMATION_TOKEN  Fine-grained Token mit Zugriff auf maridcam-backend (Contents: read) und
+#                              maridcam-mock (Contents + Pull requests: read/write)
+#   ANTHROPIC_API_KEY          oder CLAUDE_CODE_OAUTH_TOKEN (eins von beiden genügt)
+
+on:
+  repository_dispatch:
+    types: [backend-api-changed]
+  workflow_dispatch:
+    inputs:
+      backend_ref:
+        description: Backend-Branch oder -Commit
+        default: develop
+
+concurrency:
+  group: sync-backend-api
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+
+      - name: Backend auschecken
+        uses: actions/checkout@v4
+        with:
+          repository: develkd/maridcam-backend
+          ref: ${{ github.event.client_payload.sha || inputs.backend_ref || 'develop' }}
+          token: ${{ secrets.MARIDCAM_AUTOMATION_TOKEN }}
+          path: .backend
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Änderungen im Backend ermitteln
+        id: backend
+        run: |
+          last=$(node -p "require('./api/backend-sync.json').backendCommit")
+          new=$(git -C .backend rev-parse HEAD)
+          echo "last=$last" >> "$GITHUB_OUTPUT"
+          echo "new=$new" >> "$GITHUB_OUTPUT"
+          echo "short=${new:0:7}" >> "$GITHUB_OUTPUT"
+          if [ "$last" = "$new" ]; then
+            echo "Mock ist bereits auf Backend-Stand $new."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! git -C .backend cat-file -e "$last^{commit}" 2>/dev/null; then
+            echo "::warning::Letzter abgeglichener Backend-Commit $last nicht gefunden, Claude vergleicht den gesamten Stand."
+            echo "range=" >> "$GITHUB_OUTPUT"
+          else
+            echo "range=$last..$new" >> "$GITHUB_OUTPUT"
+          fi
+          cp .backend/docs/api/openapi.json api/openapi.json
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Claude passt den Mock an
+        if: steps.backend.outputs.changed == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.MARIDCAM_AUTOMATION_TOKEN }}
+          claude_args: >-
+            --max-turns 80
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(npm test),Bash(node --test:*),Bash(git -C .backend diff:*),Bash(git -C .backend log:*),Bash(git -C .backend show:*),Bash(git diff:*),Bash(git status:*)"
+          prompt: |
+            Du arbeitest im Repository maridcam-mock: ein Node-Server ohne Abhängigkeiten, der die API von
+            maridcam-backend mit Testdaten nachbildet, damit maridcam-frontend ohne Backend läuft (siehe README.md).
+
+            Das Backend ist unter `.backend/` ausgecheckt (Commit ${{ steps.backend.outputs.new }}).
+            Der Mock wurde zuletzt mit Backend-Commit ${{ steps.backend.outputs.last }} abgeglichen.
+            `api/openapi.json` ist bereits auf den neuen Stand kopiert (`git diff api/openapi.json` zeigt die Änderung).
+
+            Aufgabe: Passe den Mock an alle Änderungen der Backend-API seit dem letzten Abgleich an.
+
+            1. Verschaffe dir einen Überblick:
+               - `git diff api/openapi.json`
+               - `git -C .backend log --oneline ${{ steps.backend.outputs.range }}` und
+                 `git -C .backend diff ${{ steps.backend.outputs.range }} -- docs/sdd src/main/java`
+                 (ist der Bereich leer, vergleiche den Mock mit dem gesamten aktuellen Backend)
+               - die betroffenen SDDs unter `.backend/docs/sdd/backend/` sowie Controller, Request-/Response-Klassen,
+                 Validierungen und Exception-Handler. Maßgeblich sind Statuscodes, Fehlercodes, `fieldErrors[].field`,
+                 Feldnamen und Fachregeln.
+            2. Passe an: Endpunkte in `src/routes/` und `src/app.js`, Validierung und Fehlercodes, Testdaten in `data/`
+               (realistisch, Platzhalter wie `{{month-1}}` für Datumswerte), `test/contract.test.js` (ein Beispiel in
+               `SAMPLES` je neuem Endpunkt), `test/api.test.js` für neues Verhalten und die Tabellen in `README.md`.
+               Entfernte Endpunkte auch im Mock entfernen.
+            3. `npm test` muss grün sein.
+            4. Ändern sich Tabellen oder Spalten (`.backend/src/main/resources/db/changelog/changes/`), passe auch
+               `scripts/export-liquibase.js` an (Testdaten für das Backend-Profil `mock`). Das Backend selbst änderst
+               du nicht: Weise in der Zusammenfassung darauf hin, dass dort `npm run export:liquibase` nötig ist.
+            5. Regeln: keine npm-Abhängigkeiten hinzufügen; `.backend/` und `api/backend-sync.json` nicht ändern;
+               nichts committen oder pushen (macht der Workflow); im Stil des vorhandenen Codes bleiben.
+            6. Schreibe zum Schluss eine kurze Zusammenfassung auf Deutsch nach `.sync-summary.md`: welche
+               Backend-Änderungen, was im Mock angepasst wurde und was bewusst nicht nachgebildet wurde. Gibt es nichts
+               anzupassen, schreibe das dort hinein und ändere sonst nichts.
+
+      - name: Tests
+        id: tests
+        if: steps.backend.outputs.changed == 'true'
+        continue-on-error: true
+        run: npm test
+
+      - name: Pull-Request-Text vorbereiten
+        id: pr
+        if: steps.backend.outputs.changed == 'true'
+        env:
+          NEW: ${{ steps.backend.outputs.new }}
+          LAST: ${{ steps.backend.outputs.last }}
+          TESTS: ${{ steps.tests.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$(git status --porcelain -- api/openapi.json scripts src data test README.md)" ]; then
+            echo "Keine Änderung am Mock nötig."
+            echo "open=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          node -e "
+            const fs = require('fs');
+            fs.writeFileSync('api/backend-sync.json', JSON.stringify({ backendCommit: process.env.NEW, syncedAt: new Date().toISOString() }, null, 2) + '\n');
+          "
+          summary=$( [ -f .sync-summary.md ] && cat .sync-summary.md || echo "(Claude hat keine Zusammenfassung geschrieben.)" )
+          if [ "$TESTS" = "success" ]; then tests="- \`npm test\` im Workflow grün"; else tests="- ⚠️ \`npm test\` im Workflow **rot**, bitte prüfen ([Lauf]($RUN_URL))"; fi
+          {
+            echo "## Zusammenfassung"
+            echo
+            echo "Automatische Anpassung des Mocks an maridcam-backend \`${LAST:0:7}\` → \`${NEW:0:7}\` ([Vergleich](https://github.com/develkd/maridcam-backend/compare/$LAST...$NEW))."
+            echo
+            echo "## Funktionsweise"
+            echo
+            echo "$summary"
+            echo
+            echo "## Tests"
+            echo
+            echo "$tests"
+            echo "- Vertragstest gegen die neue \`api/openapi.json\`"
+            echo
+            echo "## Hinweise"
+            echo
+            echo "Erstellt vom Workflow [Mock an Backend-API anpassen]($RUN_URL). Vor dem Merge kurz gegenlesen."
+          } > "$RUNNER_TEMP/pr-body.md"
+          echo "open=true" >> "$GITHUB_OUTPUT"
+
+      - name: Pull Request öffnen
+        if: steps.pr.outputs.open == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.MARIDCAM_AUTOMATION_TOKEN }}
+          base: develop
+          branch: auto/backend-api-sync
+          delete-branch: true
+          add-paths: |
+            api/**
+            scripts/**
+            src/**
+            data/**
+            test/**
+            README.md
+          commit-message: "Mock an Backend-API anpassen (backend ${{ steps.backend.outputs.short }})"
+          title: "Mock an Backend-API anpassen (backend ${{ steps.backend.outputs.short }})"
+          body-path: ${{ runner.temp }}/pr-body.md

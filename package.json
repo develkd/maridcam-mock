@@ -1,0 +1,17 @@
+{
+  "name": "maridcam-mock",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mock-Backend mit Testdaten für maridcam-frontend (ohne echtes Backend entwickeln und testen)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "start:slow": "MOCK_DELAY_MS=1500 node src/server.js",
+    "start:no-prayer-times": "MOCK_PRAYER_TIMES=unavailable node src/server.js",
+    "test": "node --test",
+    "export:liquibase": "node scripts/export-liquibase.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
