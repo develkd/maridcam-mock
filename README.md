@@ -49,7 +49,7 @@ Monats- und Datumsangaben sind **relativ zu heute** (`{{month-1}}`, `{{date-3}}`
 |---|---|
 | `persons.json` | 26 Anmeldungen: 24 Barzahler (davon 4 Volljährige ohne Erziehungsberechtigte), je 1 × SEPA und Überweisung |
 | `cash-receipts.json` | 23 Quittungen, davon 2 storniert. Die PDF-Belege werden beim Start erzeugt. |
-| `admins.json` | Konten für den Verwaltungsbereich (siehe oben) |
+| `admins.json` | Konten für den Verwaltungsbereich (siehe oben), mit Argon2id-Hash für das Backend |
 | `mosque.json` | Moschee, Berechnungsparameter für Gebetszeiten, Iqama-Abstände, Jumua |
 
 Fälle, die sich mit den Testdaten zeigen lassen:
@@ -67,6 +67,39 @@ Fälle, die sich mit den Testdaten zeigen lassen:
 Mit 24 Barzahlern hat die Liste bei 20 Einträgen pro Seite eine zweite Seite („Mehr laden“).
 Eine neue Anmeldung mit Zahlungsart „Bar“ erscheint sofort in der Barzahler-Liste.
 Belegte E-Mail-Adressen (z. B. `elif.demir1@example.com`) liefern 409 `EMAIL_ALREADY_REGISTERED`.
+
+## Dieselben Testdaten im echten Backend (H2 + Liquibase)
+
+Die Testdaten aus `data/*.json` gibt es auch als Liquibase-Changelog für das Backend-Profil `mock`: H2 in-memory,
+Schema aus den echten Changelogs, danach diese Testdaten. So lässt sich das Frontend auch gegen die echte
+Backend-Logik mit denselben Personen, Quittungen und Konten testen.
+
+```bash
+# im Backend
+mvn spring-boot:run -Dspring-boot.run.profiles=mock -Dspring.backgroundpreinitializer.ignore=true
+```
+
+| | Node-Mock (`npm start`) | Backend, Profil `mock` |
+|---|---|---|
+| Voraussetzung | Node ≥ 20 | Java 21, Maven |
+| Logik | nachgebildet | echt (Validierung, Security, JPA) |
+| Daten | Arbeitsspeicher, `POST /__mock/reset` | H2 in-memory, bei jedem Start frisch |
+| Gebetszeiten | berechnet, offline | live von mawaqit.net (Internet nötig) |
+| Extras | Verzögerung, 503, feste Uhrzeit, Token-Laufzeit | – |
+
+**Testdaten ändern:** nur hier in `data/*.json`, dann für das Backend neu erzeugen und dort committen:
+
+```bash
+npm run export:liquibase   # schreibt ../maridcam-backend/src/main/resources/db/changelog/mock/
+```
+
+Der Export wandelt `{{month-1}}` usw. in H2-Ausdrücke mit `CURRENT_DATE` um. Passwörter stehen dort nur als
+Argon2id-Hash (`passwordHash` in `admins.json`, erzeugt mit dem Encoder des Backends). Die PDF-Belege enthalten im
+Backend kein Datum, weil es erst beim Start feststeht. Im Backend prüft `MockProfileTest`, dass Changelogs und
+Testdaten zusammenpassen.
+
+Unterschied in der Sortierung: Das Backend auf H2 sortiert Namen nach Zeichencode („Çelik“ nach „Yılmaz“), der
+Node-Mock deutsch („Çelik“ bei C), wie MariaDB mit ihrer Collation in Produktion.
 
 ## Endpunkte
 
@@ -148,6 +181,8 @@ src/
 ├── pdf.js               erzeugt die PDF-Belege der Testquittungen
 ├── prayer-calc.js       Näherungsberechnung der Gebetszeiten
 └── routes/              auth, cash-receipts, registration, prayer-times
+scripts/
+└── export-liquibase.js  Testdaten → Liquibase-Changelog für das Backend-Profil mock
 api/                     API-Beschreibung des Backends + zuletzt abgeglichener Commit
 data/                    Testdaten (JSON)
 test/                    API- und Vertragstests (node:test)

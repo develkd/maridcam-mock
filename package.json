@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "start:slow": "MOCK_DELAY_MS=1500 node src/server.js",
     "start:no-prayer-times": "MOCK_PRAYER_TIMES=unavailable node src/server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "export:liquibase": "node scripts/export-liquibase.js"
   },
   "engines": {
     "node": ">=20"

@@ -47,15 +47,19 @@ function pdfFromLines(lines) {
   return Buffer.from(out, 'latin1');
 }
 
-function receiptPdf(receipt) {
+/**
+ * PDF-Beleg einer Testquittung. `withDates: false` lässt Datum und Monate weg – für den Liquibase-Export, dessen
+ * Datumswerte erst beim Start relativ zu „heute“ berechnet werden.
+ */
+function receiptPdf(receipt, { withDates = true } = {}) {
   const person = receipt.person ? `${receipt.person.firstName} ${receipt.person.lastName}` : '–';
   const amount = Number(receipt.amount).toFixed(2).replace('.', ',');
   return pdfFromLines([
     [20, `Quittung ${receipt.receiptNumber.toUpperCase()}`],
     [12, 'Mariendorf Moschee e.V. - Barzahlung Mitgliedsbeitrag'],
-    [12, `Datum: ${receipt.receiptDate}`],
+    ...(withDates ? [[12, `Datum: ${receipt.receiptDate}`]] : []),
     [12, `Betrag: ${amount} €`],
-    [12, `Beitragsmonat(e): ${receipt.months.join(', ')}`],
+    ...(withDates ? [[12, `Beitragsmonat(e): ${receipt.months.join(', ')}`]] : []),
     [12, `Für: ${person}`],
     [12, `Eingezahlt von: ${receipt.payerName}`],
     [10, 'MOCKDATEN - kein echter Beleg (maridcam-mock)'],
