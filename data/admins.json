@@ -1,0 +1,30 @@
+[
+  {
+    "email": "admin@maridcam.local",
+    "password": "Admin-Dev-2026!",
+    "roles": ["ADMIN"],
+    "status": "ACTIVE",
+    "note": "Standard-Admin, gleiche Zugangsdaten wie im dev-Profil des Backends"
+  },
+  {
+    "email": "sekretariat@maridcam.local",
+    "password": "Sekretariat-Dev-2026!",
+    "roles": ["ADMIN"],
+    "status": "ACTIVE",
+    "note": "Zweiter Admin, z. B. um 'Hochgeladen von' / 'Storniert von' zu unterscheiden"
+  },
+  {
+    "email": "lehrer@maridcam.local",
+    "password": "Lehrer-Dev-2026!",
+    "roles": [],
+    "status": "ACTIVE",
+    "note": "Konto ohne Rolle ADMIN: Anmeldung schlägt mit INVALID_CREDENTIALS fehl"
+  },
+  {
+    "email": "gesperrt@maridcam.local",
+    "password": "Gesperrt-Dev-2026!",
+    "roles": ["ADMIN"],
+    "status": "BLOCKED",
+    "note": "Gesperrtes Konto: Anmeldung schlägt mit INVALID_CREDENTIALS fehl"
+  }
+]
