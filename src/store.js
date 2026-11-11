@@ -73,7 +73,6 @@ class Store {
       this.files.set(seed.receiptIdentifier, { content, sha256: sha256(content) });
     }
     this.loginFailures = new Map();
-    this.tokens = new Map();
   }
 
   findPerson(identifier) {

@@ -27,6 +27,31 @@ npm start            # http://localhost:4200
 Das Frontend ruft fest `http://localhost:8080` auf (`API_BASE_URL` in `app.config.ts`). Läuft gleichzeitig das
 echte Backend, ist der Port belegt; dann eines von beiden beenden.
 
+## Online auf Netlify
+
+Der Mock läuft auch als [Netlify Function](https://docs.netlify.com/functions/overview/): gleiche Endpunkte unter
+`/v1/*` und `/__mock`, dazu eine kurze Startseite (`public/index.html`). Konfiguration in `netlify.toml`.
+
+**Einrichten (einmalig):** In Netlify „Add new project“ → „Import an existing project“ → GitHub →
+`develkd/maridcam-mock`, Branch `develop`. Build-Einstellungen nicht ändern, sie kommen aus `netlify.toml`. Den
+Site-Namen am besten `maridcam-mock` nennen (→ `https://maridcam-mock.netlify.app`). Danach deployt Netlify jeden
+Merge nach `develop` automatisch; vor jedem Deploy läuft `npm test`.
+
+Umgebungsvariablen (Netlify → Site configuration → Environment variables, alle optional): dieselben wie lokal
+(`MOCK_DELAY_MS`, `MOCK_PRAYER_TIMES`, `MOCK_TOKEN_TTL_SECONDS`, `MOCK_NOW`, `MOCK_CORS_ORIGINS`) und
+`MOCK_TOKEN_SECRET` (Schlüssel für die Token-Signatur, Standardwert ist fest eingebaut).
+
+Unterschiede zum lokalen Betrieb:
+
+- Netlify startet Function-Instanzen nach Bedarf neu. **Uploads, Stornos und neue Anmeldungen bleiben nur erhalten,
+  solange die Instanz läuft**; danach gelten wieder die Testdaten. Für Demos ist das gewollt, zum Prüfen von
+  Abläufen reicht es.
+- Login-Tokens sind signiert (HMAC-SHA256) und werden ohne Speicher geprüft. Eine Anmeldung gilt deshalb auch,
+  wenn eine andere Instanz die nächste Anfrage beantwortet.
+- Das Frontend auf Netlify ruft den Mock über eine Weiterleitung `/v1/*` auf (siehe maridcam-frontend, README).
+
+Lokal prüfen, was Netlify baut: `npx netlify-cli build --offline` (legt `.netlify/functions/api.zip` an).
+
 ## Zugänge
 
 | E-Mail | Passwort | Ergebnis |
@@ -173,7 +198,7 @@ Benötigte Secrets:
 
 ```text
 src/
-├── server.js            Start, Ausgabe der Zugänge
+├── server.js            Start, Ausgabe der Zugänge (lokal)
 ├── app.js               HTTP-Server, Routing, CORS, Verzögerung, /__mock
 ├── http.js              Fehlerformat (BE-007), JSON/Multipart lesen
 ├── store.js             Daten im Arbeitsspeicher, relative Platzhalter, Reset
@@ -184,6 +209,9 @@ src/
 scripts/
 └── export-liquibase.js  Testdaten → Liquibase-Changelog für das Backend-Profil mock
 api/                     API-Beschreibung des Backends + zuletzt abgeglichener Commit
+netlify/functions/
+└── api.mjs              Netlify Function: Web-Request/Response ↔ req/res des Mocks
+public/                  Startseite auf Netlify
 data/                    Testdaten (JSON)
 test/                    API- und Vertragstests (node:test)
 ```

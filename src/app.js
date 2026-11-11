@@ -16,6 +16,8 @@ function configFromEnv(env = process.env) {
     host: env.HOST || '127.0.0.1',
     delayMs: Number(env.MOCK_DELAY_MS || 0),
     tokenTtlSeconds: Number(env.MOCK_TOKEN_TTL_SECONDS || 3600),
+    // Schlüssel für die Token-Signatur; nur Mockdaten, daher mit festem Standardwert
+    tokenSecret: env.MOCK_TOKEN_SECRET || 'maridcam-mock-token-secret',
     prayerTimesUnavailable: env.MOCK_PRAYER_TIMES === 'unavailable',
     now: env.MOCK_NOW || '',
     allowedOrigins: (env.MOCK_CORS_ORIGINS || '*').split(',').map((o) => o.trim()),
@@ -78,11 +80,13 @@ function corsHeaders(req, config) {
   };
 }
 
-function createApp(config = configFromEnv()) {
+/** Request-Handler (req, res) im Stil von node:http – genutzt vom lokalen Server und von der Netlify Function. */
+function createHandler(config = configFromEnv()) {
+  config = { tokenSecret: 'maridcam-mock-token-secret', ...config };
   const clock = () => (config.now ? new Date(config.now) : new Date());
   const store = new Store(clock);
 
-  const server = http.createServer(async (req, res) => {
+  const handler = async (req, res) => {
     const cors = corsHeaders(req, config);
     const originalWriteHead = res.writeHead.bind(res);
     res.writeHead = (status, headers = {}) => originalWriteHead(status, { ...cors, ...headers });
@@ -122,9 +126,14 @@ function createApp(config = configFromEnv()) {
         send(res, 500, errorBody(new ApiError(500, 'INTERNAL_ERROR', 'Unexpected error.'), now));
       }
     }
-  });
+  };
 
-  return { server, store, config };
+  return { handler, store, config };
 }
 
-module.exports = { createApp, configFromEnv };
+function createApp(config = configFromEnv()) {
+  const { handler, store, config: effective } = createHandler(config);
+  return { server: http.createServer(handler), store, config: effective };
+}
+
+module.exports = { createApp, createHandler, configFromEnv };
