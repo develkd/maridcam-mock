@@ -14,4 +14,5 @@ Mock-Backend mit Testdaten für maridcam-frontend. Überblick, Zugänge, Testdat
 - Node ≥ 20, keine npm-Abhängigkeiten hinzufügen.
 - `npm test` muss grün sein (API-, Vertrags- und Export-Tests).
 - API-Verhalten folgt dem Backend (`api/openapi.json`, SDDs in maridcam-backend `docs/sdd/backend/`). Neuer Endpunkt: Route in `src/routes/`, Beispiel in `test/contract.test.js` (`SAMPLES`), Test in `test/api.test.js`, README-Tabelle.
+- Netlify: `netlify/functions/api.mjs` nutzt `createHandler` aus `src/app.js`; `netlify.toml` nimmt `src/**` und `data/**` ins Function-Paket. Kein Zustand außerhalb der Instanz (Tokens sind signiert, Daten im Arbeitsspeicher der Instanz). `test/netlify-function.test.js` prüft die Function.
 - Testdaten nur in `data/*.json` ändern; danach `npm run export:liquibase` und das Ergebnis per PR ins Backend (`src/main/resources/db/changelog/mock/`).

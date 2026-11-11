@@ -1,0 +1,12 @@
+# Netlify: Mock als Function unter /v1/* und /__mock, dazu eine statische Startseite.
+# Site in Netlify per "Import from Git" (develkd/maridcam-mock, Branch develop) anlegen – Einstellungen kommen von hier.
+[build]
+  publish = "public"
+  command = "npm test"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[functions]
+  # src/ wird per createRequire geladen und data/ per fs gelesen – beides muss ausdrücklich ins Function-Paket
+  included_files = ["src/**", "data/**"]
