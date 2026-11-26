@@ -20,6 +20,8 @@ const SPEC = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'api', 'opena
 const NOW = '2026-11-08T14:00:00Z';
 const OMER = '5e0c1a00-0000-4000-8000-000000000004';
 const MERYEM_VALID_RECEIPT = 'c0ffee00-0000-4000-8000-000000000009';
+// vorbereitetes, gültiges Bestätigungs-Token aus data/email-confirmations.json
+const VALID_CONFIRMATION_TOKEN = require('../data/email-confirmations.json')[0].token;
 
 let app;
 let base;
@@ -58,6 +60,8 @@ const SAMPLES = {
   'POST /v1/auth/login': () => postJson('/v1/auth/login', { email: 'admin@maridcam.local', password: 'Admin-Dev-2026!' }),
   'POST /v1/student-registrations': () =>
     postJson('/v1/student-registrations', {
+      registrationType: 'MEMBER',
+      language: 'de',
       email: 'vertrag@example.com',
       person: {
         firstName: 'Vertrag',
@@ -70,10 +74,26 @@ const SAMPLES = {
       address: { street: 'Weg', houseNumber: '1', postalCode: '12107', city: 'Berlin', country: 'Deutschland' },
       privacyAccepted: true,
       termsAccepted: true,
-      paymentMethod: 'SEPA_DIRECT_DEBIT',
-      bank: { contributionAmount: 25, iban: 'DE89370400440532013000', accountHolder: 'Vertrag Test' },
-      sepaConsent: true,
+      paymentMethod: 'STANDING_ORDER',
+      bank: { contributionAmount: 25 },
     }),
+  'POST /v1/student-registrations/email-confirmation': () =>
+    postJson('/v1/student-registrations/email-confirmation', { token: VALID_CONFIRMATION_TOKEN }),
+  'GET /v1/association-bank-account': () => fetch(`${base}/v1/association-bank-account`),
+  'PUT /v1/admin/association-bank-account': async () =>
+    fetch(`${base}/v1/admin/association-bank-account`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await token()}` },
+      body: JSON.stringify({ accountHolder: 'Testkonto', iban: 'DE89 3704 0044 0532 0130 00', bankName: 'Testbank' }),
+    }),
+  'GET /v1/admin/mail-settings': () => getAuth('/v1/admin/mail-settings'),
+  'PUT /v1/admin/mail-settings': async () =>
+    fetch(`${base}/v1/admin/mail-settings`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await token()}` },
+      body: JSON.stringify({ host: 'smtp.gmail.com', port: 587, username: 'verein@example.com', from: 'verein@example.com', startTls: true, password: 'abcd efgh ijkl mnop' }),
+    }),
+  'GET /v1/prayer-times/calendar.ics': () => fetch(`${base}/v1/prayer-times/calendar.ics?lang=de`),
   'GET /v1/prayer-times': () => fetch(`${base}/v1/prayer-times`),
   'GET /v1/admin/cash-payers': () => getAuth('/v1/admin/cash-payers?query=demir'),
   'GET /v1/admin/persons/{personIdentifier}/cash-receipts': () =>
@@ -95,7 +115,7 @@ const SAMPLES = {
 };
 
 /** Endpunkte, die nur der Mock hat (nicht in openapi.json des Backends). */
-const MOCK_ONLY = ['GET /v1/prayer-times/calendar.ics', 'GET /__mock', 'POST /__mock/reset'];
+const MOCK_ONLY = ['GET /__mock', 'POST /__mock/reset'];
 
 const operations = Object.entries(SPEC.paths).flatMap(([p, ops]) =>
   Object.entries(ops)

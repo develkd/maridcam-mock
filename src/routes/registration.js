@@ -4,28 +4,19 @@ const crypto = require('node:crypto');
 const { ApiError, validation, fieldError, readJson, send } = require('../http');
 const { berlinToday, toIsoSeconds } = require('../time');
 
-const PAYMENT_METHODS = ['SEPA_DIRECT_DEBIT', 'BANK_TRANSFER', 'CASH'];
+// BE-022: Anmeldeart und Zahlart (löst BE-017 ab: kein SEPA, keine IBAN mehr)
+const REGISTRATION_TYPES = ['MEMBER', 'STUDENT'];
+const PAYMENT_METHODS = ['CASH', 'STANDING_ORDER'];
+const LANGUAGES = ['de', 'tr', 'en'];
+const MEMBER_MINIMUM_AGE = 18;
+const MIN_CONTRIBUTION = 1;
 const ADDRESS_FIELDS = ['street', 'houseNumber', 'postalCode', 'city', 'country'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// BE-023: Token = 32 Zufallsbytes Base64url ohne Padding = 43 Zeichen; gültig 48 h
+const TOKEN_FORMAT = /^[A-Za-z0-9_-]{43}$/;
+const CONFIRMATION_TTL_MS = 48 * 3600 * 1000;
 
 const blank = (v) => typeof v !== 'string' || !v.trim();
-
-function validIban(value) {
-  const iban = String(value).replace(/\s+/g, '').toUpperCase();
-  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(iban)) return false;
-  const rearranged = iban.slice(4) + iban.slice(0, 4);
-  const digits = rearranged.replace(/[A-Z]/g, (c) => String(c.charCodeAt(0) - 55));
-  let rest = 0;
-  for (const d of digits) rest = (rest * 10 + Number(d)) % 97;
-  return rest === 1;
-}
-
-/** SEPA-Mandatsreferenz wie im Backend (BE-017): MRD-<JJJJMMTT UTC>-<12 Zeichen>. */
-function mandateReference(now) {
-  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const random = Array.from(crypto.randomBytes(12), (b) => alphabet[b % alphabet.length]).join('');
-  return `MRD-${now.toISOString().slice(0, 10).replace(/-/g, '')}-${random}`;
-}
 
 function ageOn(dateOfBirth, today) {
   const [by, bm, bd] = dateOfBirth.split('-').map(Number);
@@ -41,15 +32,22 @@ function checkAddress(address, prefix, errors) {
   for (const f of ADDRESS_FIELDS) if (blank(address[f])) errors.push(fieldError(`${prefix}.${f}`, 'must not be blank'));
 }
 
+/** BE-022: zufällige UUID v4 ohne Bindestriche (^[0-9a-f]{32}$), wie UuidPaymentReferenceGenerator. */
+const paymentReference = () => crypto.randomUUID().replace(/-/g, '');
+
 /**
- * POST /v1/student-registrations – prüft die wichtigsten Regeln aus BE-006/BE-017/BE-018
- * und legt die Person im Mock an. Mit Zahlungsart CASH taucht sie danach in der Barzahler-Suche auf.
+ * POST /v1/student-registrations – Regeln aus BE-006, BE-018, BE-022 und BE-023. Legt die Person im Mock an
+ * (mit Zahlart CASH erscheint sie danach in der Barzahler-Suche) und erzeugt ein Bestätigungs-Token. Mails verschickt
+ * der Mock nicht; der Bestätigungslink steht im Log und unter GET /__mock.
  */
 async function registerStudent(ctx) {
   const body = (await readJson(ctx.req)) || {};
   const errors = [];
   const person = body.person;
 
+  if (!REGISTRATION_TYPES.includes(body.registrationType)) {
+    errors.push(fieldError('registrationType', 'must be one of MEMBER, STUDENT'));
+  }
   if (!person || typeof person !== 'object') {
     errors.push(fieldError('person', 'must not be null'));
   } else {
@@ -64,29 +62,24 @@ async function registerStudent(ctx) {
   checkAddress(body.address, 'address', errors);
   if (blank(body.email)) errors.push(fieldError('email', 'must not be blank'));
   else if (!EMAIL.test(body.email.trim())) errors.push(fieldError('email', 'must be a well-formed email address'));
-  for (const f of ['privacyAccepted', 'termsAccepted', 'sepaConsent']) {
+  for (const f of ['privacyAccepted', 'termsAccepted']) {
     if (typeof body[f] !== 'boolean') errors.push(fieldError(f, 'must not be null'));
   }
+  if (body.language !== undefined && body.language !== null && !LANGUAGES.includes(body.language)) {
+    errors.push(fieldError('language', 'must be one of de, tr, en'));
+  }
 
-  const method = body.paymentMethod;
-  if (!PAYMENT_METHODS.includes(method)) errors.push(fieldError('paymentMethod', 'must be one of ' + PAYMENT_METHODS.join(', ')));
+  // Alte Felder (sepaConsent, bank.iban, bank.accountHolder) werden wie im Backend ignoriert.
+  if (!PAYMENT_METHODS.includes(body.paymentMethod)) {
+    errors.push(fieldError('paymentMethod', 'must be one of CASH, STANDING_ORDER'));
+  }
   const bank = body.bank;
   if (!bank || typeof bank !== 'object') {
     errors.push(fieldError('bank', 'must not be null'));
   } else {
     const amount = bank.contributionAmount;
-    if (typeof amount !== 'number' || amount < 0 || !/^\d{1,7}(\.\d{1,2})?$/.test(String(amount))) {
-      errors.push(fieldError('bank.contributionAmount', 'must be a positive amount with at most 2 decimals'));
-    }
-    if (method === 'SEPA_DIRECT_DEBIT') {
-      if (blank(bank.iban) || !validIban(bank.iban)) errors.push(fieldError('bank.iban', 'must be a valid IBAN'));
-      if (blank(bank.accountHolder) || bank.accountHolder.length > 200) {
-        errors.push(fieldError('bank.accountHolder', 'must not be blank'));
-      }
-    } else if (method) {
-      if (bank.iban) errors.push(fieldError('bank.iban', 'must be empty for this payment method'));
-      if (bank.accountHolder) errors.push(fieldError('bank.accountHolder', 'must be empty for this payment method'));
-      if (body.sepaConsent === true) errors.push(fieldError('sepaConsent', 'must be false for this payment method'));
+    if (typeof amount !== 'number' || amount < MIN_CONTRIBUTION || !/^\d{1,7}(\.\d{1,2})?$/.test(String(amount))) {
+      errors.push(fieldError('bank.contributionAmount', 'must be at least 1.00 with at most 2 decimals'));
     }
   }
 
@@ -102,21 +95,29 @@ async function registerStudent(ctx) {
   }
   if (errors.length) throw validation(errors);
 
-  const today = berlinToday(ctx.now);
-  const adult = ageOn(person.dateOfBirth, today) >= 18;
-  if (!adult && !guardian) throw validation([fieldError('guardian', 'is required for persons under 18')]);
-  if (adult && guardian) throw validation([fieldError('guardian', 'is not allowed for persons aged 18 or over')]);
-
-  if (!body.privacyAccepted || !body.termsAccepted || (method === 'SEPA_DIRECT_DEBIT' && !body.sepaConsent)) {
+  // Reihenfolge wie im RegisterStudentHandler: Zustimmungen → Geburtsdatum → Mindestalter Mitglied → Erziehungsberechtigte → E-Mail
+  if (!body.privacyAccepted || !body.termsAccepted) {
     throw new ApiError(400, 'REQUIRED_CONSENT_MISSING', 'Required consent is missing.');
   }
+  const today = berlinToday(ctx.now);
+  if (person.dateOfBirth >= today) throw validation([fieldError('person.dateOfBirth', 'must be a past date')]);
+  const age = ageOn(person.dateOfBirth, today);
+  const isMember = body.registrationType === 'MEMBER';
+  if (isMember && age < MEMBER_MINIMUM_AGE) {
+    throw validation([fieldError('person.dateOfBirth', 'members must be at least 18 years old')]);
+  }
+  if (isMember && guardian) throw validation([fieldError('guardian', 'is not allowed for members')]);
+  if (!isMember && age < 18 && !guardian) throw validation([fieldError('guardian', 'is required for persons under 18')]);
+  if (!isMember && age >= 18 && guardian) throw validation([fieldError('guardian', 'is not allowed for persons aged 18 or over')]);
   if (ctx.store.findPersonByEmail(body.email)) {
     throw new ApiError(409, 'EMAIL_ALREADY_REGISTERED', 'Email is already registered.');
   }
 
   const identifier = crypto.randomUUID();
+  const reference = paymentReference();
   ctx.store.addPerson({
     identifier,
+    registrationType: body.registrationType,
     firstName: person.firstName.trim(),
     lastName: person.lastName.trim(),
     dateOfBirth: person.dateOfBirth,
@@ -124,20 +125,59 @@ async function registerStudent(ctx) {
     email: body.email.trim().toLowerCase(),
     phoneNumber: person.phoneNumber,
     address: person.address,
-    paymentMethod: method,
+    paymentMethod: body.paymentMethod,
     contributionAmount: bank.contributionAmount,
     guardians: guardian
       ? [{ firstName: guardian.firstName.trim(), lastName: guardian.lastName.trim(), email: guardian.email, phoneNumber: guardian.phoneNumber }]
       : [],
     accountStatus: 'PENDING_EMAIL_VERIFICATION',
     registeredAt: toIsoSeconds(ctx.now),
+    paymentReference: reference,
   });
+
+  const token = crypto.randomBytes(32).toString('base64url');
+  const createdAt = toIsoSeconds(ctx.now);
+  const expiresAt = toIsoSeconds(new Date(ctx.now.getTime() + CONFIRMATION_TTL_MS));
+  ctx.store.addConfirmation(token, identifier, createdAt, expiresAt, `neue Anmeldung ${createdAt}`);
+  if (!ctx.config.quiet) {
+    console.log(`  Bestätigungslink (Mail wird nicht verschickt): ${confirmationLink(ctx.config, token)}`);
+  }
+
   send(ctx.res, 201, {
     personIdentifier: identifier,
     userAccountIdentifier: crypto.randomUUID(),
     accountStatus: 'PENDING_EMAIL_VERIFICATION',
-    mandateReference: method === 'SEPA_DIRECT_DEBIT' ? mandateReference(ctx.now) : null,
+    paymentReference: reference,
   });
 }
 
-module.exports = { registerStudent, validIban };
+function confirmationLink(config, token) {
+  return `${config.frontendBaseUrl.replace(/\/+$/, '')}/student-registration/confirm?token=${token}`;
+}
+
+/** POST /v1/student-registrations/email-confirmation (BE-023). */
+async function confirmEmail(ctx) {
+  const body = (await readJson(ctx.req)) || {};
+  const token = body.token;
+  if (typeof token !== 'string' || !token.trim() || token.length > 200) {
+    throw validation([fieldError('token', 'must not be blank and at most 200 characters')]);
+  }
+  // Prüfreihenfolge wie im Backend: Format → bekannt → Konto bestätigbar → benutzt → abgelaufen
+  const invalid = () => new ApiError(400, 'EMAIL_CONFIRMATION_TOKEN_INVALID', 'Confirmation token is invalid.');
+  if (!TOKEN_FORMAT.test(token)) throw invalid();
+  const confirmation = ctx.store.findConfirmation(token);
+  if (!confirmation) throw invalid();
+  const person = ctx.store.findPerson(confirmation.personIdentifier);
+  if (!person || ['BLOCKED', 'DELETED'].includes(person.accountStatus)) throw invalid();
+  if (confirmation.usedAt) {
+    throw new ApiError(409, 'EMAIL_CONFIRMATION_TOKEN_ALREADY_USED', 'Confirmation token was already used.');
+  }
+  if (Date.parse(confirmation.expiresAt) <= ctx.now.getTime()) {
+    throw new ApiError(410, 'EMAIL_CONFIRMATION_TOKEN_EXPIRED', 'Confirmation token has expired.');
+  }
+  confirmation.usedAt = toIsoSeconds(ctx.now);
+  person.accountStatus = 'ACTIVE';
+  send(ctx.res, 200, { accountStatus: 'ACTIVE' });
+}
+
+module.exports = { registerStudent, confirmEmail, confirmationLink };

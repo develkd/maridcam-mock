@@ -8,6 +8,29 @@ const LOCK_MS = 15 * 60 * 1000;
 
 const base64url = (value) => Buffer.from(JSON.stringify(value)).toString('base64url');
 
+/**
+ * Tokens sind mit HMAC-SHA256 signiert (wie ein JWT mit HS256) und werden ohne Speicher geprüft. So funktioniert die
+ * Anmeldung auch, wenn mehrere Instanzen laufen (z. B. als Netlify Function).
+ */
+function sign(claims, secret) {
+  const unsigned = `${base64url({ alg: 'HS256', typ: 'JWT' })}.${base64url(claims)}`;
+  const signature = crypto.createHmac('sha256', secret).update(unsigned).digest('base64url');
+  return `${unsigned}.${signature}`;
+}
+
+function verify(token, secret) {
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const expected = crypto.createHmac('sha256', secret).update(`${parts[0]}.${parts[1]}`).digest();
+  const actual = Buffer.from(parts[2], 'base64url');
+  if (actual.length !== expected.length || !crypto.timingSafeEqual(actual, expected)) return null;
+  try {
+    return JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+  } catch {
+    return null;
+  }
+}
+
 /** POST /v1/auth/login (BE-019) inkl. Sperre nach 5 Fehlversuchen je E-Mail. */
 async function login(ctx) {
   const { req, res, store, config } = ctx;
@@ -44,8 +67,7 @@ async function login(ctx) {
   const expiresIn = config.tokenTtlSeconds;
   const iat = Math.floor(now / 1000);
   const claims = { iss: 'maridcam-mock', sub: account.email, email: account.email, roles: account.roles, iat, exp: iat + expiresIn, jti: crypto.randomUUID() };
-  const accessToken = `${base64url({ alg: 'none', typ: 'JWT' })}.${base64url(claims)}.mock`;
-  store.tokens.set(accessToken, { email: account.email, roles: account.roles, expiresAt: now + expiresIn * 1000 });
+  const accessToken = sign(claims, config.tokenSecret);
   send(res, 200, { accessToken, tokenType: 'Bearer', expiresIn, roles: account.roles });
 }
 
@@ -53,13 +75,14 @@ async function login(ctx) {
 function requireAdmin(ctx) {
   const header = String(ctx.req.headers.authorization || '');
   const token = header.startsWith('Bearer ') ? header.slice(7).trim() : '';
-  const session = token ? ctx.store.tokens.get(token) : null;
-  if (!session || session.expiresAt <= ctx.now.getTime()) {
-    if (session) ctx.store.tokens.delete(token);
+  const claims = token ? verify(token, ctx.config.tokenSecret) : null;
+  if (!claims || typeof claims.exp !== 'number' || claims.exp * 1000 <= ctx.now.getTime()) {
     throw new ApiError(401, 'UNAUTHENTICATED', 'Authentication required.', [], { 'WWW-Authenticate': 'Bearer' });
   }
-  if (!session.roles.includes('ADMIN')) throw new ApiError(403, 'FORBIDDEN', 'Access denied.');
-  return session.email;
+  if (!Array.isArray(claims.roles) || !claims.roles.includes('ADMIN')) {
+    throw new ApiError(403, 'FORBIDDEN', 'Access denied.');
+  }
+  return claims.email;
 }
 
-module.exports = { login, requireAdmin };
+module.exports = { login, requireAdmin, sign, verify };

@@ -6,7 +6,8 @@ const { ApiError, errorBody, send } = require('./http');
 const { Store } = require('./store');
 const { login } = require('./routes/auth');
 const cash = require('./routes/cash-receipts');
-const { registerStudent } = require('./routes/registration');
+const { registerStudent, confirmEmail, confirmationLink } = require('./routes/registration');
+const settings = require('./routes/settings');
 const { getPrayerTimes, getCalendarIcs } = require('./routes/prayer-times');
 
 /** Einstellungen aus Umgebungsvariablen (siehe README). */
@@ -16,6 +17,12 @@ function configFromEnv(env = process.env) {
     host: env.HOST || '127.0.0.1',
     delayMs: Number(env.MOCK_DELAY_MS || 0),
     tokenTtlSeconds: Number(env.MOCK_TOKEN_TTL_SECONDS || 3600),
+    // Schlüssel für die Token-Signatur; nur Mockdaten, daher mit festem Standardwert
+    tokenSecret: env.MOCK_TOKEN_SECRET || 'maridcam-mock-token-secret',
+    // Basis für Bestätigungslinks (BE-023); Mails verschickt der Mock nicht
+    frontendBaseUrl: env.MOCK_FRONTEND_BASE_URL || 'http://localhost:4200',
+    // BE-024: placeholder = Platzhalter-Bankverbindung wie direkt nach Changelog 017 (configured=false)
+    bankAccountPlaceholder: env.MOCK_BANK_ACCOUNT === 'placeholder',
     prayerTimesUnavailable: env.MOCK_PRAYER_TIMES === 'unavailable',
     now: env.MOCK_NOW || '',
     allowedOrigins: (env.MOCK_CORS_ORIGINS || '*').split(',').map((o) => o.trim()),
@@ -25,6 +32,11 @@ function configFromEnv(env = process.env) {
 const ROUTES = [
   ['POST', /^\/v1\/auth\/login$/, (ctx) => login(ctx)],
   ['POST', /^\/v1\/student-registrations$/, (ctx) => registerStudent(ctx)],
+  ['POST', /^\/v1\/student-registrations\/email-confirmation$/, (ctx) => confirmEmail(ctx)],
+  ['GET', /^\/v1\/association-bank-account$/, (ctx) => settings.getBankAccount(ctx)],
+  ['PUT', /^\/v1\/admin\/association-bank-account$/, (ctx) => settings.putBankAccount(ctx)],
+  ['GET', /^\/v1\/admin\/mail-settings$/, (ctx) => settings.getMailSettings(ctx)],
+  ['PUT', /^\/v1\/admin\/mail-settings$/, (ctx) => settings.putMailSettings(ctx)],
   ['GET', /^\/v1\/prayer-times$/, (ctx) => getPrayerTimes(ctx)],
   ['GET', /^\/v1\/prayer-times\/calendar\.ics$/, (ctx) => getCalendarIcs(ctx)],
   ['GET', /^\/v1\/admin\/cash-payers$/, (ctx) => cash.searchCashPayers(ctx)],
@@ -47,13 +59,19 @@ function mockInfo(ctx) {
       tokenTtlSeconds: config.tokenTtlSeconds,
       prayerTimesUnavailable: config.prayerTimesUnavailable,
       fixedNow: config.now || null,
+      bankAccountPlaceholder: config.bankAccountPlaceholder,
+      frontendBaseUrl: config.frontendBaseUrl,
     },
+    // BE-023: Links zum Bestätigen der E-Mail-Adresse (vorbereitete Testfälle und neue Anmeldungen)
+    confirmationLinks: store.confirmationLinks.map(({ token, note }) => ({ link: confirmationLink(config, token), note })),
     accounts: store.admins.map(({ email, password, roles, status, note }) => ({ email, password, roles, status, note })),
     counts: {
       persons: store.persons.length,
       cashPayers: store.persons.filter((p) => p.paymentMethod === 'CASH').length,
       receipts: store.receipts.length,
       cancelledReceipts: store.receipts.filter((r) => r.cancellation).length,
+      members: store.persons.filter((p) => p.registrationType === 'MEMBER').length,
+      pendingEmailConfirmation: store.persons.filter((p) => p.accountStatus === 'PENDING_EMAIL_VERIFICATION').length,
     },
   });
 }
@@ -70,7 +88,7 @@ function corsHeaders(req, config) {
   if (!allowed) return {};
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
     'Access-Control-Allow-Headers': 'Authorization,Content-Type',
     'Access-Control-Expose-Headers': 'Content-Disposition,Location,Retry-After',
     'Access-Control-Max-Age': '3600',
@@ -78,11 +96,14 @@ function corsHeaders(req, config) {
   };
 }
 
-function createApp(config = configFromEnv()) {
+/** Request-Handler (req, res) im Stil von node:http – genutzt vom lokalen Server und von der Netlify Function. */
+function createHandler(config = configFromEnv()) {
+  // fehlende Werte mit den Standardwerten auffüllen (z. B. wenn Tests nur einen Teil übergeben)
+  config = { ...configFromEnv({}), ...config };
   const clock = () => (config.now ? new Date(config.now) : new Date());
   const store = new Store(clock);
 
-  const server = http.createServer(async (req, res) => {
+  const handler = async (req, res) => {
     const cors = corsHeaders(req, config);
     const originalWriteHead = res.writeHead.bind(res);
     res.writeHead = (status, headers = {}) => originalWriteHead(status, { ...cors, ...headers });
@@ -122,9 +143,14 @@ function createApp(config = configFromEnv()) {
         send(res, 500, errorBody(new ApiError(500, 'INTERNAL_ERROR', 'Unexpected error.'), now));
       }
     }
-  });
+  };
 
-  return { server, store, config };
+  return { handler, store, config };
 }
 
-module.exports = { createApp, configFromEnv };
+function createApp(config = configFromEnv()) {
+  const { handler, store, config: effective } = createHandler(config);
+  return { server: http.createServer(handler), store, config: effective };
+}
+
+module.exports = { createApp, createHandler, configFromEnv };

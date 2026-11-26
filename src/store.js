@@ -73,7 +73,47 @@ class Store {
       this.files.set(seed.receiptIdentifier, { content, sha256: sha256(content) });
     }
     this.loginFailures = new Map();
-    this.tokens = new Map();
+
+    // BE-023: Bestätigungs-Tokens; gespeichert wird wie im Backend nur der SHA-256-Hash
+    this.confirmations = resolvePlaceholders(readSeed('email-confirmations.json'), now).map((c) => ({
+      tokenHash: sha256(Buffer.from(c.token, 'utf8')),
+      personIdentifier: c.personIdentifier,
+      createdAt: c.createdAt,
+      expiresAt: c.expiresAt,
+      usedAt: c.usedAt,
+      mailStatus: c.mailStatus,
+    }));
+    // nur für /__mock: Links der zuletzt erzeugten bzw. vorbereiteten Tokens (Mails werden nicht verschickt)
+    this.confirmationLinks = resolvePlaceholders(readSeed('email-confirmations.json'), now).map((c) => ({
+      token: c.token,
+      note: c.note,
+    }));
+
+    // BE-024: eine Bankverbindung des Vereins
+    const bank = resolvePlaceholders(readSeed('association-bank-account.json'), now);
+    this.bankAccount = { accountHolder: bank.accountHolder, iban: bank.iban, bankName: bank.bankName, updatedAt: bank.updatedAt };
+    this.bankAccountSaved = false;
+
+    // BE-025: Mail-Einstellungen – wie im Backend zu Beginn leer (Changelog 018 legt keine Zeile an)
+    this.mailSettings = null;
+  }
+
+  findConfirmation(rawToken) {
+    const hash = sha256(Buffer.from(rawToken, 'utf8'));
+    return this.confirmations.find((c) => c.tokenHash === hash) || null;
+  }
+
+  addConfirmation(rawToken, personIdentifier, createdAt, expiresAt, note) {
+    this.confirmations.push({
+      tokenHash: sha256(Buffer.from(rawToken, 'utf8')),
+      personIdentifier,
+      createdAt,
+      expiresAt,
+      usedAt: null,
+      mailStatus: 'SENT',
+    });
+    this.confirmationLinks.unshift({ token: rawToken, note });
+    this.confirmationLinks = this.confirmationLinks.slice(0, 20);
   }
 
   findPerson(identifier) {

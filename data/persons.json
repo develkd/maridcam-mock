@@ -1,6 +1,7 @@
 [
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000001",
+    "registrationType": "STUDENT",
     "firstName": "Elif",
     "lastName": "Demir",
     "dateOfBirth": "2014-03-01",
@@ -24,11 +25,13 @@
         "phoneNumber": "+49 176 5104729"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-117}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-117}}",
+    "paymentReference": "77ddc12034013e5f4a239a5f9434bda7"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000002",
+    "registrationType": "STUDENT",
     "firstName": "Yusuf",
     "lastName": "Kaya",
     "dateOfBirth": "2012-07-19",
@@ -52,11 +55,13 @@
         "phoneNumber": "+49 176 5209458"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-114}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-114}}",
+    "paymentReference": "0fd7c768bd1987c6d9eedd3f02ffae38"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000003",
+    "registrationType": "STUDENT",
     "firstName": "Zeynep",
     "lastName": "Yılmaz",
     "dateOfBirth": "2015-11-02",
@@ -86,11 +91,13 @@
         "phoneNumber": "+49 176 5314188"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-111}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-111}}",
+    "paymentReference": "117d39fcd35a233408713bdf8b08b85b"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000004",
+    "registrationType": "STUDENT",
     "firstName": "Ömer",
     "lastName": "Çelik",
     "dateOfBirth": "2010-01-25",
@@ -114,11 +121,13 @@
         "phoneNumber": "+49 176 5418916"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-108}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-108}}",
+    "paymentReference": "455451364c15454b81febe1be1661983"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000005",
+    "registrationType": "STUDENT",
     "firstName": "Amira",
     "lastName": "Hassan",
     "dateOfBirth": "2001-05-14",
@@ -135,11 +144,13 @@
     "paymentMethod": "CASH",
     "contributionAmount": 20,
     "guardians": [],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-105}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-105}}",
+    "paymentReference": "1aa76dc4a00a5fd14d4c65a0e81600ba"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000006",
+    "registrationType": "STUDENT",
     "firstName": "Leon",
     "lastName": "Schneider",
     "dateOfBirth": "1998-09-30",
@@ -156,11 +167,13 @@
     "paymentMethod": "CASH",
     "contributionAmount": 25,
     "guardians": [],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-102}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-102}}",
+    "paymentReference": "b48fa794769f76e16370812cd02ce418"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000007",
+    "registrationType": "STUDENT",
     "firstName": "Meryem",
     "lastName": "Arslan",
     "dateOfBirth": "2013-04-12",
@@ -184,11 +197,13 @@
         "phoneNumber": "+49 176 5733103"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-99}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-99}}",
+    "paymentReference": "8b57bd02a3873fbec354d548aa2c65ea"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000008",
+    "registrationType": "STUDENT",
     "firstName": "Hamza",
     "lastName": "Aydın",
     "dateOfBirth": "2016-08-08",
@@ -212,11 +227,13 @@
         "phoneNumber": "+49 176 5837832"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-96}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-96}}",
+    "paymentReference": "48e6b53f9c86c79e4f47c52e3ecccd35"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000009",
+    "registrationType": "STUDENT",
     "firstName": "Selin",
     "lastName": "Öztürk",
     "dateOfBirth": "2011-12-24",
@@ -240,11 +257,13 @@
         "phoneNumber": "+49 176 5942561"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-93}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-93}}",
+    "paymentReference": "bf5a0ef6df9cd4c06094d7fd999868ed"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000010",
+    "registrationType": "MEMBER",
     "firstName": "İbrahim",
     "lastName": "Yıldız",
     "dateOfBirth": "1985-02-11",
@@ -261,11 +280,13 @@
     "paymentMethod": "CASH",
     "contributionAmount": 40,
     "guardians": [],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-90}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-90}}",
+    "paymentReference": "6caa5fd5eddde8a95b358dbf4a0a52c4"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000011",
+    "registrationType": "STUDENT",
     "firstName": "Ayla",
     "lastName": "Koç",
     "dateOfBirth": "2009-06-30",
@@ -289,11 +310,13 @@
         "phoneNumber": "+49 176 6152019"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-87}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-87}}",
+    "paymentReference": "0d3dd3aebaa36cd9238d7469ffbb7a33"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000012",
+    "registrationType": "STUDENT",
     "firstName": "Can",
     "lastName": "Şahin",
     "dateOfBirth": "2014-10-10",
@@ -317,11 +340,13 @@
         "phoneNumber": "+49 176 6256748"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-84}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-84}}",
+    "paymentReference": "e6f54fda77f1c8920ba488706cdc35d1"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000013",
+    "registrationType": "STUDENT",
     "firstName": "Mariam",
     "lastName": "Ahmadi",
     "dateOfBirth": "2012-01-17",
@@ -345,11 +370,13 @@
         "phoneNumber": "+49 176 6361477"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-81}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-81}}",
+    "paymentReference": "07c4f7ce8fd24a1e3c873565ecf6fbc6"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000014",
+    "registrationType": "STUDENT",
     "firstName": "Bilal",
     "lastName": "Doğan",
     "dateOfBirth": "2015-03-28",
@@ -373,11 +400,13 @@
         "phoneNumber": "+49 176 6466206"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-78}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-78}}",
+    "paymentReference": "84335e5d1ee6253b61c159028fd9609f"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000015",
+    "registrationType": "STUDENT",
     "firstName": "Esra",
     "lastName": "Kılıç",
     "dateOfBirth": "2010-09-09",
@@ -401,11 +430,13 @@
         "phoneNumber": "+49 176 6570935"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-75}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-75}}",
+    "paymentReference": "3b7cdc2de4b569376eeb3b3d102efa65"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000016",
+    "registrationType": "STUDENT",
     "firstName": "Emir",
     "lastName": "Aksoy",
     "dateOfBirth": "2013-12-01",
@@ -429,11 +460,13 @@
         "phoneNumber": "+49 176 6675664"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-72}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-72}}",
+    "paymentReference": "0c95650e2f2f00c4027d57d2ceb7c9f2"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000017",
+    "registrationType": "STUDENT",
     "firstName": "Hira",
     "lastName": "Polat",
     "dateOfBirth": "2016-02-14",
@@ -457,11 +490,13 @@
         "phoneNumber": "+49 176 6780393"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-69}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-69}}",
+    "paymentReference": "1e8c341bce91d8563dc5699b57c170a4"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000018",
+    "registrationType": "STUDENT",
     "firstName": "Musa",
     "lastName": "Erdem",
     "dateOfBirth": "2011-05-05",
@@ -485,11 +520,13 @@
         "phoneNumber": "+49 176 6885122"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-66}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-66}}",
+    "paymentReference": "675d180d9fb7d32b686c45b9f90b1b8e"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000019",
+    "registrationType": "STUDENT",
     "firstName": "Defne",
     "lastName": "Kurt",
     "dateOfBirth": "2014-07-21",
@@ -513,11 +550,13 @@
         "phoneNumber": "+49 176 6989851"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-63}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-63}}",
+    "paymentReference": "5cd10da39825e01cd981ff294195fa93"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000020",
+    "registrationType": "STUDENT",
     "firstName": "Yasin",
     "lastName": "Özdemir",
     "dateOfBirth": "2012-11-11",
@@ -541,11 +580,13 @@
         "phoneNumber": "+49 176 7094580"
       }
     ],
-    "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-60}}"
+    "accountStatus": "ACTIVE",
+    "registeredAt": "{{datetime-60}}",
+    "paymentReference": "70315fae3dd25d14c41cbf71b7f72afd"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000021",
+    "registrationType": "STUDENT",
     "firstName": "Sara",
     "lastName": "Bayram",
     "dateOfBirth": "2009-04-03",
@@ -570,10 +611,12 @@
       }
     ],
     "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-57}}"
+    "registeredAt": "{{datetime-57}}",
+    "paymentReference": "d9ee1eeaa4e5227b8b387c343445e06a"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000022",
+    "registrationType": "STUDENT",
     "firstName": "Kerem",
     "lastName": "Güneş",
     "dateOfBirth": "2015-08-19",
@@ -598,10 +641,12 @@
       }
     ],
     "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-54}}"
+    "registeredAt": "{{datetime-54}}",
+    "paymentReference": "d1bb719a6c6b6edff4ac4836e71cbac6"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000023",
+    "registrationType": "MEMBER",
     "firstName": "Fatima",
     "lastName": "Rahimi",
     "dateOfBirth": "1992-10-27",
@@ -619,10 +664,12 @@
     "contributionAmount": 25,
     "guardians": [],
     "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-51}}"
+    "registeredAt": "{{datetime-51}}",
+    "paymentReference": "f7b212649446e1513ad88b35e420787a"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000024",
+    "registrationType": "STUDENT",
     "firstName": "Ahmet",
     "lastName": "Demir",
     "dateOfBirth": "2016-06-06",
@@ -647,10 +694,12 @@
       }
     ],
     "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-48}}"
+    "registeredAt": "{{datetime-48}}",
+    "paymentReference": "7f5006af899d4b46e02e1737ceb20e8f"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000025",
+    "registrationType": "MEMBER",
     "firstName": "Max",
     "lastName": "Mustermann",
     "dateOfBirth": "2000-01-01",
@@ -664,16 +713,16 @@
       "city": "Berlin",
       "country": "Deutschland"
     },
-    "paymentMethod": "SEPA_DIRECT_DEBIT",
+    "paymentMethod": "STANDING_ORDER",
     "contributionAmount": 25,
-    "iban": "DE89370400440532013000",
-    "accountHolder": "Max Mustermann",
     "guardians": [],
     "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-45}}"
+    "registeredAt": "{{datetime-45}}",
+    "paymentReference": "b1958c8a6e21792d6b8c938f3a0b6eb2"
   },
   {
     "identifier": "5e0c1a00-0000-4000-8000-000000000026",
+    "registrationType": "STUDENT",
     "firstName": "Lena",
     "lastName": "Becker",
     "dateOfBirth": "2012-02-02",
@@ -687,7 +736,7 @@
       "city": "Berlin",
       "country": "Deutschland"
     },
-    "paymentMethod": "BANK_TRANSFER",
+    "paymentMethod": "STANDING_ORDER",
     "contributionAmount": 25,
     "guardians": [
       {
@@ -698,6 +747,7 @@
       }
     ],
     "accountStatus": "PENDING_EMAIL_VERIFICATION",
-    "registeredAt": "{{datetime-42}}"
+    "registeredAt": "{{datetime-42}}",
+    "paymentReference": "437dc125146d26b6ed42655d552c0cd1"
   }
 ]

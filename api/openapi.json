@@ -1,6 +1,26 @@
 {
   "components" : {
     "schemas" : {
+      "AssociationBankAccountResponse" : {
+        "properties" : {
+          "accountHolder" : {
+            "type" : "string"
+          },
+          "bankName" : {
+            "description" : "Kreditinstitut; bei configured=false ein Platzhalter (z. B. [Kreditinstitut])",
+            "type" : "string"
+          },
+          "configured" : {
+            "description" : "true nur bei einer echten Bankverbindung (gültige IBAN, kein Platzhalter)",
+            "type" : "boolean"
+          },
+          "iban" : {
+            "description" : "IBAN in Vierergruppen; bei configured=false ein Platzhalter (z. B. DE00 0000 0000 0000 0000 00)",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "CashPayerPageResponse" : {
         "properties" : {
           "items" : {
@@ -149,6 +169,26 @@
         },
         "type" : "object"
       },
+      "ConfirmEmailRequest" : {
+        "properties" : {
+          "token" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "token" ],
+        "type" : "object"
+      },
+      "ConfirmEmailResponse" : {
+        "properties" : {
+          "accountStatus" : {
+            "enum" : [ "PENDING_EMAIL_VERIFICATION", "ACTIVE", "BLOCKED", "DELETED" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "DailyPrayerTimesResponse" : {
         "properties" : {
           "asr" : {
@@ -219,6 +259,39 @@
             "type" : "array"
           },
           "tokenType" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "MailSettingsResponse" : {
+        "properties" : {
+          "configured" : {
+            "description" : "true, wenn die gespeicherten Einstellungen zum Versand reichen (Host, Absender, mit Anmeldename auch Passwort). Nur dann ersetzen sie die Umgebungsvariablen MARIDCAM_MAIL_*.",
+            "type" : "boolean"
+          },
+          "from" : {
+            "type" : "string"
+          },
+          "host" : {
+            "type" : "string"
+          },
+          "passwordSet" : {
+            "description" : "true, wenn ein Passwort gespeichert ist (der Wert selbst wird nie ausgegeben)",
+            "type" : "boolean"
+          },
+          "port" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "startTls" : {
+            "type" : "boolean"
+          },
+          "updatedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "username" : {
             "type" : "string"
           }
         },
@@ -336,17 +409,9 @@
       },
       "RegisterStudentBankRequest" : {
         "properties" : {
-          "accountHolder" : {
-            "maxLength" : 200,
-            "minLength" : 0,
-            "type" : "string"
-          },
           "contributionAmount" : {
-            "minimum" : 0,
+            "minimum" : 1,
             "type" : "number"
-          },
-          "iban" : {
-            "type" : "string"
           }
         },
         "required" : [ "contributionAmount" ],
@@ -457,8 +522,12 @@
           "guardian" : {
             "$ref" : "#/components/schemas/RegisterStudentGuardianRequest"
           },
+          "language" : {
+            "pattern" : "de|tr|en",
+            "type" : "string"
+          },
           "paymentMethod" : {
-            "pattern" : "SEPA_DIRECT_DEBIT|BANK_TRANSFER|CASH",
+            "pattern" : "CASH|STANDING_ORDER",
             "type" : "string"
           },
           "person" : {
@@ -467,14 +536,15 @@
           "privacyAccepted" : {
             "type" : "boolean"
           },
-          "sepaConsent" : {
-            "type" : "boolean"
+          "registrationType" : {
+            "pattern" : "MEMBER|STUDENT",
+            "type" : "string"
           },
           "termsAccepted" : {
             "type" : "boolean"
           }
         },
-        "required" : [ "address", "bank", "email", "paymentMethod", "person", "privacyAccepted", "sepaConsent", "termsAccepted" ],
+        "required" : [ "address", "bank", "email", "paymentMethod", "person", "privacyAccepted", "registrationType", "termsAccepted" ],
         "type" : "object"
       },
       "RegisterStudentResponse" : {
@@ -483,7 +553,7 @@
             "enum" : [ "PENDING_EMAIL_VERIFICATION", "ACTIVE", "BLOCKED", "DELETED" ],
             "type" : "string"
           },
-          "mandateReference" : {
+          "paymentReference" : {
             "type" : "string"
           },
           "personIdentifier" : {
@@ -495,6 +565,71 @@
             "type" : "string"
           }
         },
+        "type" : "object"
+      },
+      "UpdateAssociationBankAccountRequest" : {
+        "properties" : {
+          "accountHolder" : {
+            "maxLength" : 70,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "bankName" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "iban" : {
+            "minLength" : 1,
+            "type" : "string"
+          }
+        },
+        "required" : [ "accountHolder", "bankName", "iban" ],
+        "type" : "object"
+      },
+      "UpdateMailSettingsRequest" : {
+        "properties" : {
+          "from" : {
+            "description" : "Absenderadresse; bei Gmail die Gmail-Adresse oder ein dort eingerichteter Alias",
+            "maxLength" : 254,
+            "minLength" : 0,
+            "pattern" : "\\s*[^\\s@<>,;\"]+@[^\\s@<>,;\"]+\\.[^\\s@<>,;\"]+\\s*",
+            "type" : "string"
+          },
+          "host" : {
+            "example" : "smtp.gmail.com",
+            "maxLength" : 255,
+            "minLength" : 0,
+            "pattern" : "\\s*[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?\\s*",
+            "type" : "string"
+          },
+          "password" : {
+            "description" : "Neues Passwort (bei Gmail das App-Passwort). Fehlt es oder ist es leer, bleibt das gespeicherte. Wird nie zurückgegeben.",
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string",
+            "writeOnly" : true
+          },
+          "port" : {
+            "example" : 587,
+            "format" : "int32",
+            "maximum" : 65535,
+            "minimum" : 1,
+            "type" : "integer"
+          },
+          "startTls" : {
+            "description" : "STARTTLS erzwingen; Standard true",
+            "example" : true,
+            "type" : "boolean"
+          },
+          "username" : {
+            "description" : "Anmeldename; bei Gmail die Gmail-Adresse. Leer = ohne Anmeldung",
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        },
+        "required" : [ "from", "host", "port" ],
         "type" : "object"
       }
     },
@@ -518,6 +653,39 @@
   },
   "openapi" : "3.1.0",
   "paths" : {
+    "/v1/admin/association-bank-account" : {
+      "put" : {
+        "description" : "Ersetzt die eine gespeicherte Bankverbindung. 400 VALIDATION_FAILED bei ungültiger IBAN (Format/Prüfsumme), leeren oder zu langen Feldern und bei Platzhaltertexten in eckigen Klammern. Antwort wie GET /v1/association-bank-account, immer mit configured=true.",
+        "operationId" : "update_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateAssociationBankAccountRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AssociationBankAccountResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "summary" : "Bankverbindung ersetzen",
+        "tags" : [ "Admin – Bankverbindung" ]
+      }
+    },
     "/v1/admin/cash-payers" : {
       "get" : {
         "description" : "Nur Registrierungen mit paymentMethod = CASH; query sucht case-insensitive in Vor-/Nachname der Person und der Erziehungsberechtigten. Sortierung Nachname, Vorname.",
@@ -642,6 +810,60 @@
         "tags" : [ "Admin – Barzahlungen" ]
       }
     },
+    "/v1/admin/mail-settings" : {
+      "get" : {
+        "description" : "Liefert die gespeicherten Einstellungen ohne Passwort (nur passwordSet). Ohne gespeicherte Einstellungen: host/username/from leer, port 587, startTls true, configured=false.",
+        "operationId" : "get",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MailSettingsResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "summary" : "E-Mail-Einstellungen lesen",
+        "tags" : [ "Admin – E-Mail-Einstellungen" ]
+      },
+      "put" : {
+        "description" : "Ersetzt die gespeicherten Einstellungen. Das Passwort wird verschlüsselt gespeichert; fehlt es oder ist es leer, bleibt das bisherige. Mit username ist ein Passwort Pflicht (400 VALIDATION_FAILED, Feld password). Antwort wie GET, ohne Passwort. Es wird keine Test-Mail versendet.",
+        "operationId" : "update",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateMailSettingsRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MailSettingsResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "summary" : "E-Mail-Einstellungen speichern",
+        "tags" : [ "Admin – E-Mail-Einstellungen" ]
+      }
+    },
     "/v1/admin/persons/{personIdentifier}/cash-receipts" : {
       "get" : {
         "description" : "Neueste zuerst, inkl. stornierter Quittungen (status = CANCELLED). 404 PERSON_NOT_FOUND.",
@@ -726,6 +948,26 @@
         "tags" : [ "Admin – Barzahlungen" ]
       }
     },
+    "/v1/association-bank-account" : {
+      "get" : {
+        "description" : "Immer 200. configured=false, solange nur der Platzhalter eingetragen ist (iban und bankName sind dann Platzhaltertexte und dürfen nicht als Zahlungsadresse gezeigt werden). Cache-Control: no-store.",
+        "operationId" : "get_1",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AssociationBankAccountResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Bankverbindung des Vereins",
+        "tags" : [ "Bankverbindung des Vereins" ]
+      }
+    },
     "/v1/auth/login" : {
       "post" : {
         "description" : "Liefert ein Bearer-Token (JWT, 3600 s) für /v1/admin/**. 401 INVALID_CREDENTIALS, 429 LOGIN_TEMPORARILY_LOCKED nach 5 Fehlversuchen (15 Minuten).",
@@ -791,6 +1033,33 @@
         "tags" : [ "prayer-times-controller" ]
       }
     },
+    "/v1/prayer-times/calendar.ics" : {
+      "get" : {
+        "operationId" : "getCalendarSubscription",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "lang",
+          "required" : false,
+          "schema" : {
+            "default" : "de",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "prayer-times-controller" ]
+      }
+    },
     "/v1/student-registrations" : {
       "post" : {
         "operationId" : "register",
@@ -818,13 +1087,50 @@
         },
         "tags" : [ "register-student-controller" ]
       }
+    },
+    "/v1/student-registrations/email-confirmation" : {
+      "post" : {
+        "operationId" : "confirm",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConfirmEmailRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConfirmEmailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "confirm-email-controller" ]
+      }
     }
   },
   "tags" : [ {
     "description" : "Barzahler suchen und Quittungen zuordnen (Rolle ADMIN)",
     "name" : "Admin – Barzahlungen"
   }, {
+    "description" : "Empfängerkonto für Daueraufträge (öffentlich lesbar)",
+    "name" : "Bankverbindung des Vereins"
+  }, {
     "description" : "Admin-Login (JWT)",
     "name" : "Auth"
+  }, {
+    "description" : "SMTP-Zugangsdaten für den Mailversand (Rolle ADMIN)",
+    "name" : "Admin – E-Mail-Einstellungen"
+  }, {
+    "description" : "Bankverbindung des Vereins ändern (Rolle ADMIN)",
+    "name" : "Admin – Bankverbindung"
   } ]
 }

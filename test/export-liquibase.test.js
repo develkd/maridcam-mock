@@ -25,7 +25,13 @@ test('Changelog enthält alle Testdaten, eindeutige Identifier und je Quittung e
   assert.equal(count('persons'), 26 + 4);
   assert.equal(count('user_accounts'), 26 + 4);
   assert.equal(count('payment_details'), 26);
-  assert.equal(count('sepa_mandates'), 1);
+  assert.equal(count('sepa_mandates'), 0);
+  assert.equal(count('email_confirmation_tokens'), 4);
+  assert.equal((changelog.match(/<column name="payment_reference"/g) || []).length, 26);
+  assert.equal((changelog.match(/44444444-4444-4444-4444-444444444444/g) || []).length, 3);
+  assert.match(changelog, /<update tableName="association_bank_account">/);
+  assert.ok(!/SEPA_DIRECT_DEBIT|BANK_TRANSFER/.test(changelog), 'alte Zahlarten');
+  assert.ok(!changelog.includes(require('../data/email-confirmations.json')[0].token), 'Token nur als Hash');
   assert.equal(count('cash_receipts'), 23);
   assert.equal(count('cash_receipt_files'), 23);
   assert.equal(count('cash_receipt_cancellations'), 2);
