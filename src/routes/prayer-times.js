@@ -1,7 +1,7 @@
 'use strict';
 
 const { ApiError, validation, send } = require('../http');
-const { berlinParts, berlinToday, addDays } = require('../time');
+const { berlinParts, berlinToday, berlinOffsetHours, addDays } = require('../time');
 const { monthCalendar, hhmm } = require('../prayer-calc');
 
 const SALAH = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
@@ -84,51 +84,89 @@ function getPrayerTimes(ctx) {
   });
 }
 
-const ICS_NAMES = {
-  de: { fajr: 'Fadschr', dhuhr: 'Zuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Ischa', calendar: 'Gebetszeiten' },
-  tr: { fajr: 'Sabah', dhuhr: 'Öğle', asr: 'İkindi', maghrib: 'Akşam', isha: 'Yatsı', calendar: 'Namaz Vakitleri' },
-  en: { fajr: 'Fajr', dhuhr: 'Dhuhr', asr: 'Asr', maghrib: 'Maghrib', isha: 'Isha', calendar: 'Prayer Times' },
+// Wie PrayerCalendarIcsWriter im Backend (BE-015, Kalender-Abo)
+const ICS_LANGUAGES = {
+  de: { title: 'Gebetszeiten', iqama: 'Iqama', names: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Ischa'] },
+  tr: { title: 'Namaz Vakitleri', iqama: 'İkamet', names: ['İmsak', 'Öğle', 'İkindi', 'Akşam', 'Yatsı'] },
+  en: { title: 'Prayer Times', iqama: 'Iqama', names: ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] },
 };
+const MOSQUE_NAME = 'Mariendorf Moschee';
+const UID_DOMAIN = 'mariendorf-moschee.de';
+const DAYS_BEFORE = 7;
+const DAYS_AFTER = 90;
 
-/** GET /v1/prayer-times/calendar.ics?lang= – Kalender-Abo für 60 Tage ab heute. */
+const icsEscape = (text) => String(text).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+
+/** Zeile nach 75 Bytes (UTF-8) falten, ohne Zeichen zu zerteilen; Fortsetzung beginnt mit einem Leerzeichen. */
+function fold(line) {
+  const parts = [];
+  let current = '';
+  let bytes = 0;
+  for (const ch of line) {
+    const size = Buffer.byteLength(ch);
+    const limit = parts.length === 0 ? 75 : 74;
+    if (bytes + size > limit) {
+      parts.push(current);
+      current = '';
+      bytes = 0;
+    }
+    current += ch;
+    bytes += size;
+  }
+  parts.push(current);
+  return parts.join('\r\n ');
+}
+
+/** Berliner Ortszeit (Datum + HH:mm) → UTC im iCalendar-Format yyyyMMddTHHmmssZ. */
+function utcStamp(isoDate, hhmm, offsetMinutes = 0) {
+  const [y, m, d] = isoDate.split('-').map(Number);
+  const [h, min] = hhmm.split(':').map(Number);
+  const utc = new Date(Date.UTC(y, m - 1, d, h, min + offsetMinutes) - berlinOffsetHours(y, m, d) * 3600000);
+  return utc.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+}
+
+/** GET /v1/prayer-times/calendar.ics?lang=de|tr|en – Kalender-Abo, heute −7 bis +90 Tage. */
 function getCalendarIcs(ctx) {
+  if (ctx.config.prayerTimesUnavailable) {
+    throw new ApiError(503, 'PRAYER_TIMES_UNAVAILABLE', 'Prayer times data is currently unavailable.');
+  }
   const config = ctx.store.mosque;
-  const lang = ICS_NAMES[ctx.url.searchParams.get('lang')] ? ctx.url.searchParams.get('lang') : 'en';
-  const names = ICS_NAMES[lang];
+  const code = ctx.url.searchParams.get('lang') || 'de';
+  const language = ICS_LANGUAGES[code] || ICS_LANGUAGES.en;
   const today = berlinToday(ctx.now);
   const stamp = ctx.now.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//maridcam-mock//prayer-times//DE',
+    'PRODID:-//Mariendorf Moschee//Gebetszeiten//DE',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    `X-WR-CALNAME:${config.mosque.name} – ${names.calendar} (Mock)`,
-    'X-WR-TIMEZONE:Europe/Berlin',
-    'REFRESH-INTERVAL;VALUE=DURATION:P1D',
+    `X-WR-CALNAME:${icsEscape(`${MOSQUE_NAME} – ${language.title}`)}`,
+    `X-WR-TIMEZONE:${config.mosque.timezone}`,
+    'REFRESH-INTERVAL;VALUE=DURATION:PT12H',
+    'X-PUBLISHED-TTL:PT12H',
   ];
-  for (let i = 0; i < 60; i++) {
-    const date = addDays(today, i);
+  for (let offset = -DAYS_BEFORE; offset <= DAYS_AFTER; offset++) {
+    const date = addDays(today, offset);
     const times = todayTimes(config, date);
-    for (const name of SALAH) {
-      const day = date.replace(/-/g, '');
-      const start = `${day}T${times[name].replace(':', '')}00`;
-      const end = `${day}T${hhmm(Math.min(toMinutes(times[name]) + 15, 1439)).replace(':', '')}00`;
+    SALAH.forEach((key, i) => {
       lines.push(
         'BEGIN:VEVENT',
-        `UID:${date}-${name}@maridcam-mock`,
+        `UID:${date.replace(/-/g, '')}-${key}@${UID_DOMAIN}`,
         `DTSTAMP:${stamp}`,
-        `DTSTART;TZID=Europe/Berlin:${start}`,
-        `DTEND;TZID=Europe/Berlin:${end}`,
-        `SUMMARY:${names[name]}`,
-        'END:VEVENT'
+        `DTSTART:${utcStamp(date, times[key])}`,
+        `DTEND:${utcStamp(date, times[key], 15)}`,
+        `SUMMARY:${icsEscape(`${language.names[i]} · ${MOSQUE_NAME}`)}`
       );
-    }
+      if (times.iqama[key]) lines.push(`DESCRIPTION:${icsEscape(`${language.iqama} ${times.iqama[key]}`)}`);
+      lines.push('TRANSP:TRANSPARENT', 'END:VEVENT');
+    });
   }
   lines.push('END:VCALENDAR');
-  send(ctx.res, 200, lines.join('\r\n') + '\r\n', {
-    'Content-Type': 'text/calendar; charset=utf-8',
-    'Content-Disposition': 'inline; filename="gebetszeiten.ics"',
+  send(ctx.res, 200, lines.map(fold).join('\r\n') + '\r\n', {
+    'Content-Type': 'text/calendar;charset=UTF-8',
+    'Content-Disposition': 'inline; filename="mariendorf-moschee-gebetszeiten.ics"',
+    'Cache-Control': 'max-age=3600, public',
   });
 }
 

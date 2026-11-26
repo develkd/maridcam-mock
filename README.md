@@ -72,10 +72,12 @@ Monats- und Datumsangaben sind **relativ zu heute** (`{{month-1}}`, `{{date-3}}`
 
 | Datei | Inhalt |
 |---|---|
-| `persons.json` | 26 Anmeldungen: 24 Barzahler (davon 4 Volljährige ohne Erziehungsberechtigte), je 1 × SEPA und Überweisung |
+| `persons.json` | 26 Anmeldungen: 23 Schüler, 3 Mitglieder; 24 zahlen bar, 2 per Dauerauftrag; je eine Zahlungsreferenz; 20 Konten bestätigt (`ACTIVE`), 6 warten auf die Bestätigung der E-Mail-Adresse |
 | `cash-receipts.json` | 23 Quittungen, davon 2 storniert. Die PDF-Belege werden beim Start erzeugt. |
 | `admins.json` | Konten für den Verwaltungsbereich (siehe oben), mit Argon2id-Hash für das Backend |
 | `mosque.json` | Moschee, Berechnungsparameter für Gebetszeiten, Iqama-Abstände, Jumua |
+| `email-confirmations.json` | vorbereitete Bestätigungs-Tokens (BE-023): 2 gültig, 1 abgelaufen, 1 schon benutzt |
+| `association-bank-account.json` | Bankverbindung des Vereins (BE-024): erkennbares **Testkonto**, damit niemand auf echte Daten überweist |
 
 Fälle, die sich mit den Testdaten zeigen lassen:
 
@@ -87,11 +89,25 @@ Fälle, die sich mit den Testdaten zeigen lassen:
 | Leon Schneider | volljährig, zahlt selbst; aktueller und nächster Monat im Voraus bezahlt |
 | Ömer Çelik, Selin Öztürk, … | noch keine Quittung |
 | Ahmet Demir (Kind) | gleicher Name wie der Vater von Elif: Suche nach „Ahmet“ findet beide |
-| Max Mustermann | zahlt per SEPA, erscheint nicht in der Barzahler-Liste (Upload → 409 `PAYMENT_METHOD_NOT_CASH`) |
+| Max Mustermann | Mitglied mit Dauerauftrag, erscheint nicht in der Barzahler-Liste (Upload → 409 `PAYMENT_METHOD_NOT_CASH`) |
+| İbrahim Yıldız, Fatima Rahimi | Mitglieder, zahlen bar |
+| Lena Becker | Schülerin mit Dauerauftrag, E-Mail noch nicht bestätigt |
 
 Mit 24 Barzahlern hat die Liste bei 20 Einträgen pro Seite eine zweite Seite („Mehr laden“).
 Eine neue Anmeldung mit Zahlungsart „Bar“ erscheint sofort in der Barzahler-Liste.
 Belegte E-Mail-Adressen (z. B. `elif.demir1@example.com`) liefern 409 `EMAIL_ALREADY_REGISTERED`.
+
+**E-Mail-Bestätigung (BE-023):** Der Mock verschickt keine Mails. Die Bestätigungslinks stehen unter
+[`/__mock`](http://localhost:8080/__mock) (`confirmationLinks`) und bei neuen Anmeldungen im Log. Vorbereitete Tokens
+für die Seite `/student-registration/confirm?token=…` des Frontends:
+
+| Token | Ergebnis |
+|---|---|
+| `Mock-gueltig_Kerem-Guenes000000000000000000` | 200, Konto von Kerem Güneş wird `ACTIVE` (danach 409) |
+| `Mock-gueltig_Lena-Becker0000000000000000000` | 200, Konto von Lena Becker wird `ACTIVE` |
+| `Mock-abgelaufen_Sara-Bayram0000000000000000` | 410 `EMAIL_CONFIRMATION_TOKEN_EXPIRED` |
+| `Mock-benutzt_Elif-Demir00000000000000000000` | 409 `EMAIL_CONFIRMATION_TOKEN_ALREADY_USED` |
+| alles andere | 400 `EMAIL_CONFIRMATION_TOKEN_INVALID` |
 
 ## Dieselben Testdaten im echten Backend (H2 + Liquibase)
 
@@ -131,18 +147,23 @@ Node-Mock deutsch („Çelik“ bei C), wie MariaDB mit ihrer Collation in Produ
 | Methode | Pfad | Hinweis |
 |---|---|---|
 | `POST` | `/v1/auth/login` | Token gilt 1 h (`MOCK_TOKEN_TTL_SECONDS`) |
-| `POST` | `/v1/student-registrations` | Pflichtfelder, Alter ↔ Erziehungsberechtigte, Zahlungsart/IBAN/SEPA-Mandat, Einwilligungen |
+| `POST` | `/v1/student-registrations` | Anmeldeart `MEMBER`/`STUDENT` (Mitglied ab 18, ohne Erziehungsberechtigte), Zahlart `CASH`/`STANDING_ORDER`, Beitrag ab 1 €, Sprache `de`/`tr`/`en`, Einwilligungen; Antwort mit `paymentReference` |
+| `POST` | `/v1/student-registrations/email-confirmation` | Token aus dem Bestätigungslink → Konto `ACTIVE`; 400/409/410 wie im Backend |
+| `GET` | `/v1/association-bank-account` | Bankverbindung des Vereins, IBAN in Vierergruppen, `configured` |
 | `GET` | `/v1/prayer-times[?year=&month=]` | heutige Zeiten, nächstes Gebet, Kalender (Jahr oder Monat), Iqama |
-| `GET` | `/v1/prayer-times/calendar.ics?lang=de\|tr\|en` | Kalender-Abo, 60 Tage ab heute |
+| `GET` | `/v1/prayer-times/calendar.ics?lang=de\|tr\|en` | Kalender-Abo wie im Backend: heute −7 bis +90 Tage, 5 Gebete je Tag, Zeiten in UTC |
 | `GET` | `/v1/admin/cash-payers?query=&page=&size=` | nur Barzahler, Suche auch über Erziehungsberechtigte |
 | `GET` | `/v1/admin/persons/{id}/cash-receipts` | neueste zuerst, inkl. stornierter |
 | `POST` | `/v1/admin/persons/{id}/cash-receipts` | Multipart `file` + `data`; PDF/JPEG/PNG (Signatur), max. 10 MB |
 | `POST` | `/v1/admin/cash-receipts/{id}/cancellation` | Storno mit Grund, nicht umkehrbar |
 | `GET` | `/v1/admin/cash-receipts/{id}/file` | Beleg herunterladen |
-| `GET` | `/__mock` | nur Mock: Zugänge, Einstellungen, Anzahl der Daten |
+| `PUT` | `/v1/admin/association-bank-account` | Bankverbindung ändern (IBAN-Prüfung, keine Platzhalter in `[…]`) |
+| `GET`/`PUT` | `/v1/admin/mail-settings` | SMTP-Einstellungen; das Passwort wird nie ausgegeben (`passwordSet`), fehlt es beim `PUT`, bleibt das gespeicherte |
+| `GET` | `/__mock` | nur Mock: Zugänge, Einstellungen, Anzahl der Daten, Bestätigungslinks |
 | `POST` | `/__mock/reset` | nur Mock: Testdaten neu laden |
 
-Nicht nachgebildet: Wetter (das Frontend fragt open-meteo.com direkt ab), Swagger, E-Mail-Versand.
+Nicht nachgebildet: Wetter (das Frontend fragt open-meteo.com direkt ab), Swagger, E-Mail-Versand (Links stattdessen
+unter `/__mock`), Verschlüsselung des Mail-Passworts (der Mock hält es nur im Arbeitsspeicher).
 
 ## Einstellungen
 
@@ -155,6 +176,8 @@ Nicht nachgebildet: Wetter (das Frontend fragt open-meteo.com direkt ab), Swagge
 | `MOCK_TOKEN_TTL_SECONDS` | `3600` | Laufzeit des Tokens, z. B. `60`, um den Ablauf der Sitzung zu testen |
 | `MOCK_NOW` | – | feste Uhrzeit (ISO, z. B. `2026-11-08T14:00:00Z`) für reproduzierbare Screenshots und Tests |
 | `MOCK_CORS_ORIGINS` | `*` | erlaubte Origins, kommagetrennt |
+| `MOCK_FRONTEND_BASE_URL` | `http://localhost:4200` | Basis der Bestätigungslinks (auf Netlify die Adresse des Frontends) |
+| `MOCK_BANK_ACCOUNT` | – | `placeholder` → Platzhalter wie direkt nach Changelog 017 (`configured: false`), bis ein Admin-`PUT` kommt |
 
 Beispiel: `MOCK_DELAY_MS=800 MOCK_TOKEN_TTL_SECONDS=120 npm start`
 

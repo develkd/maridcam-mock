@@ -23,9 +23,9 @@ const DEFAULT_TARGET = path.join(ROOT, '..', 'maridcam-backend', 'src', 'main', 
 // Feste Identifier aus den Backend-Changelogs 006 und 010
 const ROLE_STUDENT = '11111111-1111-1111-1111-111111111111';
 const ROLE_ADMIN = '33333333-3333-3333-3333-333333333333';
+const ROLE_MEMBER = '44444444-4444-4444-4444-444444444444';
 // Argon2id-Hash eines zufälligen, unbekannten Passworts: Schülerkonten können sich nicht anmelden
 const STUDENT_PASSWORD_HASH = '$argon2id$v=19$m=60000,t=5,p=1$q5tRFd3pF/Xz2Nd6pXPxRQ$oXHXWOy1IqHC5e0YkfZWBKqDrz8AovjGdjb+5jeHqZE';
-const SEPA_CREDITOR_ID = 'DE98ZZZ09999999999';
 
 const readJson = (name) => JSON.parse(fs.readFileSync(path.join(ROOT, 'data', name), 'utf8'));
 
@@ -140,36 +140,26 @@ function buildChangelog() {
 
   const registrations = persons.flatMap((p) => [
     ...personInserts(p),
-    ...accountInserts(p.identifier, derive(p.identifier, 'acc'), p.email, STUDENT_PASSWORD_HASH, 'PENDING_EMAIL_VERIFICATION', [ROLE_STUDENT]),
+    ...accountInserts(
+      p.identifier,
+      derive(p.identifier, 'acc'),
+      p.email,
+      STUDENT_PASSWORD_HASH,
+      p.accountStatus,
+      [p.registrationType === 'MEMBER' ? ROLE_MEMBER : ROLE_STUDENT]
+    ),
   ]);
 
-  const payments = persons.flatMap((p) => {
-    const paymentIdentifier = derive(p.identifier, '9a0');
-    const rows = [
-      insert('payment_details', [
-        col('identifier', paymentIdentifier),
-        col('person_identifier', p.identifier),
-        col('payment_method', p.paymentMethod),
-        colNum('contribution_amount', p.contributionAmount),
-      ]),
-    ];
-    if (p.paymentMethod === 'SEPA_DIRECT_DEBIT') {
-      const created = timestampSql(p.registeredAt);
-      rows.push(
-        insert('sepa_mandates', [
-          col('identifier', derive(p.identifier, '5e9')),
-          col('payment_details_identifier', paymentIdentifier),
-          col('mandate_reference', `MRD-MOCK-${p.identifier.slice(-12).toUpperCase()}`),
-          col('creditor_identifier', SEPA_CREDITOR_ID),
-          col('account_holder', p.accountHolder),
-          col('iban', p.iban),
-          col('mandate_type', 'RCUR'),
-          colSql('signed_at', created),
-        ])
-      );
-    }
-    return rows;
-  });
+  // BE-022: nur CASH/STANDING_ORDER, jede Zeile mit eindeutiger Zahlungsreferenz, keine SEPA-Mandate mehr
+  const payments = persons.map((p) =>
+    insert('payment_details', [
+      col('identifier', derive(p.identifier, '9a0')),
+      col('person_identifier', p.identifier),
+      col('payment_method', p.paymentMethod),
+      colNum('contribution_amount', p.contributionAmount),
+      col('payment_reference', p.paymentReference),
+    ])
+  );
 
   const guardians = persons.flatMap((p) =>
     p.guardians.map((g, k) =>
@@ -240,6 +230,30 @@ function buildChangelog() {
     return rows;
   });
 
+  // BE-023: Bestätigungs-Tokens, gespeichert wie im Backend nur als SHA-256-Hash
+  const confirmations = readJson('email-confirmations.json').map((c, index) =>
+    insert('email_confirmation_tokens', [
+      col('identifier', `ec000000-0000-4000-8000-${String(index + 1).padStart(12, '0')}`),
+      col('user_account_identifier', derive(c.personIdentifier, 'acc')),
+      col('token_hash', crypto.createHash('sha256').update(c.token, 'utf8').digest('hex')),
+      colSql('created_at', timestampSql(c.createdAt)),
+      colSql('expires_at', timestampSql(c.expiresAt)),
+      c.usedAt ? colSql('used_at', timestampSql(c.usedAt)) : null,
+      col('mail_status', c.mailStatus),
+    ])
+  );
+
+  // BE-024: Changelog 017 legt einen Platzhalter an; die Testdaten ersetzen ihn durch das Testkonto
+  const bank = readJson('association-bank-account.json');
+  const bankAccount = [
+    `        <update tableName="association_bank_account">\n${[
+      col('account_holder', bank.accountHolder),
+      col('iban', bank.iban),
+      col('bank_name', bank.bankName),
+      colSql('updated_at', timestampSql(bank.updatedAt)),
+    ].join('\n')}\n        </update>`,
+  ];
+
   const changelog = `<?xml version="1.0" encoding="UTF-8"?>
 <!--
   GENERIERT von develkd/maridcam-mock (scripts/export-liquibase.js) aus data/*.json – nicht von Hand ändern.
@@ -252,15 +266,19 @@ function buildChangelog() {
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.30.xsd">
 
-${changeSet('mock-1', 'Anmeldungen: Adressen, Personen, Konten (PENDING_EMAIL_VERIFICATION), Rolle STUDENT', registrations)}
+${changeSet('mock-1', 'Anmeldungen: Adressen, Personen, Konten, Rolle STUDENT bzw. MEMBER', registrations)}
 
-${changeSet('mock-2', 'Zahlungsdaten und SEPA-Mandate', payments)}
+${changeSet('mock-2', 'Zahlungsdaten mit Zahlungsreferenz (BE-022)', payments)}
 
 ${changeSet('mock-3', 'Erziehungsberechtigte', guardians)}
 
 ${changeSet('mock-4', 'Mitarbeiterkonten (Passwörter siehe maridcam-mock/README.md)', staff)}
 
 ${changeSet('mock-5', 'Barzahlungs-Quittungen mit Belegen, Monaten und Stornos', cash)}
+
+${changeSet('mock-6', 'Bestätigungs-Tokens der E-Mail-Adresse (BE-023, nur Hash)', confirmations)}
+
+${changeSet('mock-7', 'Bankverbindung des Vereins: Testkonto statt Platzhalter (BE-024)', bankAccount)}
 
 </databaseChangeLog>
 `;

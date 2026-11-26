@@ -195,6 +195,8 @@ test('Storno: setzt Status, gibt Monat frei, zweites Storno 409', async () => {
 });
 
 const registration = (overrides = {}) => ({
+  registrationType: 'STUDENT',
+  language: 'de',
   email: 'neu@example.com',
   person: {
     firstName: 'Neue',
@@ -210,14 +212,28 @@ const registration = (overrides = {}) => ({
   termsAccepted: true,
   paymentMethod: 'CASH',
   bank: { contributionAmount: 25 },
-  sepaConsent: false,
   ...overrides,
 });
 
-test('Anmeldung: 201; Barzahler erscheint danach in der Suche; E-Mail doppelt 409', async () => {
+const adultMember = (overrides = {}) =>
+  registration({
+    registrationType: 'MEMBER',
+    email: 'mitglied@example.com',
+    person: { ...registration().person, firstName: 'Neues', lastName: 'Mitglied', dateOfBirth: '1990-03-03' },
+    guardian: undefined,
+    paymentMethod: 'STANDING_ORDER',
+    ...overrides,
+  });
+
+const fieldsOf = async (res) => (await res.json()).fieldErrors.map((f) => f.field);
+
+test('Anmeldung: 201 mit Zahlungsreferenz; Barzahler erscheint in der Suche; E-Mail doppelt 409', async () => {
   const res = await json('POST', '/v1/student-registrations', registration());
   assert.equal(res.status, 201);
-  assert.equal((await res.json()).accountStatus, 'PENDING_EMAIL_VERIFICATION');
+  const body = await res.json();
+  assert.equal(body.accountStatus, 'PENDING_EMAIL_VERIFICATION');
+  assert.match(body.paymentReference, /^[0-9a-f]{32}$/);
+  assert.equal('mandateReference' in body, false);
 
   const token = await adminToken();
   const found = await (await json('GET', '/v1/admin/cash-payers?query=neuer%20vater', undefined, token)).json();
@@ -229,20 +245,179 @@ test('Anmeldung: 201; Barzahler erscheint danach in der Suche; E-Mail doppelt 40
   assert.equal((await again.json()).code, 'EMAIL_ALREADY_REGISTERED');
 });
 
-test('Anmeldung: Regeln für Erziehungsberechtigte, SEPA und Einwilligungen', async () => {
-  const noGuardian = await json('POST', '/v1/student-registrations', registration({ guardian: undefined }));
-  assert.equal(noGuardian.status, 400);
-  assert.equal((await noGuardian.json()).fieldErrors[0].field, 'guardian');
+test('Anmeldung BE-022: Mitglied mit Dauerauftrag; erscheint nicht bei den Barzahlern; alte SEPA-Felder werden ignoriert', async () => {
+  const res = await json('POST', '/v1/student-registrations', adultMember({ sepaConsent: true, bank: { contributionAmount: 12.5, iban: 'DE89370400440532013000', accountHolder: 'X' } }));
+  assert.equal(res.status, 201);
+  const person = app.store.findPersonByEmail('mitglied@example.com');
+  assert.equal(person.registrationType, 'MEMBER');
+  assert.equal(person.paymentMethod, 'STANDING_ORDER');
+  assert.equal('iban' in person, false);
 
-  const sepa = registration({ paymentMethod: 'SEPA_DIRECT_DEBIT', bank: { contributionAmount: 25, iban: 'DE00123', accountHolder: 'X' }, sepaConsent: true });
-  const badIban = await json('POST', '/v1/student-registrations', sepa);
-  assert.equal(badIban.status, 400);
-  assert.equal((await badIban.json()).fieldErrors[0].field, 'bank.iban');
+  const token = await adminToken();
+  const found = await (await json('GET', '/v1/admin/cash-payers?query=neues', undefined, token)).json();
+  assert.equal(found.total, 0);
+});
 
-  const noMandate = registration({ paymentMethod: 'SEPA_DIRECT_DEBIT', bank: { contributionAmount: 25, iban: 'DE89 3704 0044 0532 0130 00', accountHolder: 'X' }, sepaConsent: false });
-  const missing = await json('POST', '/v1/student-registrations', noMandate);
-  assert.equal(missing.status, 400);
-  assert.equal((await missing.json()).code, 'REQUIRED_CONSENT_MISSING');
+test('Anmeldung BE-022: Feldfehler für Anmeldeart, alte Zahlarten, Beitrag unter 1 €, Sprache', async () => {
+  let res = await json('POST', '/v1/student-registrations', registration({ registrationType: 'GAST' }));
+  assert.equal(res.status, 400);
+  assert.deepEqual(await fieldsOf(res), ['registrationType']);
+
+  for (const old of ['SEPA_DIRECT_DEBIT', 'BANK_TRANSFER']) {
+    res = await json('POST', '/v1/student-registrations', registration({ paymentMethod: old }));
+    assert.deepEqual(await fieldsOf(res), ['paymentMethod']);
+  }
+
+  for (const amount of [0, 0.99, 1.234]) {
+    res = await json('POST', '/v1/student-registrations', registration({ bank: { contributionAmount: amount } }));
+    assert.deepEqual(await fieldsOf(res), ['bank.contributionAmount'], `Beitrag ${amount}`);
+  }
+  res = await json('POST', '/v1/student-registrations', registration({ bank: { contributionAmount: 1 } }));
+  assert.equal(res.status, 201);
+
+  res = await json('POST', '/v1/student-registrations', registration({ email: 'sprache@example.com', language: 'fr' }));
+  assert.deepEqual(await fieldsOf(res), ['language']);
+});
+
+test('Anmeldung BE-022/BE-018: Mindestalter Mitglied, Erziehungsberechtigte, Einwilligungen', async () => {
+  let res = await json('POST', '/v1/student-registrations', adultMember({ person: { ...adultMember().person, dateOfBirth: '2010-01-01' } }));
+  assert.equal(res.status, 400);
+  assert.deepEqual(await fieldsOf(res), ['person.dateOfBirth']);
+
+  res = await json('POST', '/v1/student-registrations', adultMember({ guardian: registration().guardian }));
+  assert.deepEqual(await fieldsOf(res), ['guardian']);
+
+  res = await json('POST', '/v1/student-registrations', registration({ guardian: undefined }));
+  assert.deepEqual(await fieldsOf(res), ['guardian']);
+
+  res = await json('POST', '/v1/student-registrations', registration({ privacyAccepted: false }));
+  assert.equal(res.status, 400);
+  assert.equal((await res.json()).code, 'REQUIRED_CONSENT_MISSING');
+});
+
+const confirm = (tokenValue) => json('POST', '/v1/student-registrations/email-confirmation', { token: tokenValue });
+const seededToken = (index) => require('../data/email-confirmations.json')[index].token;
+
+test('E-Mail-Bestätigung BE-023: gültig → ACTIVE, zweimal → 409, abgelaufen → 410, unbekannt → 400', async () => {
+  const kerem = app.store.findPerson('5e0c1a00-0000-4000-8000-000000000022');
+  assert.equal(kerem.accountStatus, 'PENDING_EMAIL_VERIFICATION');
+
+  let res = await confirm(seededToken(0));
+  assert.equal(res.status, 200);
+  assert.deepEqual(await res.json(), { accountStatus: 'ACTIVE' });
+  assert.equal(kerem.accountStatus, 'ACTIVE');
+
+  res = await confirm(seededToken(0));
+  assert.equal(res.status, 409);
+  assert.equal((await res.json()).code, 'EMAIL_CONFIRMATION_TOKEN_ALREADY_USED');
+
+  res = await confirm(seededToken(2));
+  assert.equal(res.status, 410);
+  assert.equal((await res.json()).code, 'EMAIL_CONFIRMATION_TOKEN_EXPIRED');
+
+  res = await confirm(seededToken(3));
+  assert.equal(res.status, 409);
+
+  for (const bad of ['zu-kurz', 'A'.repeat(43)]) {
+    res = await confirm(bad);
+    assert.equal(res.status, 400);
+    assert.equal((await res.json()).code, 'EMAIL_CONFIRMATION_TOKEN_INVALID');
+  }
+
+  res = await confirm('');
+  assert.deepEqual(await fieldsOf(res), ['token']);
+});
+
+test('E-Mail-Bestätigung: neue Anmeldung erzeugt einen Link unter /__mock, der das Konto aktiviert', async () => {
+  await json('POST', '/v1/student-registrations', registration());
+  const info = await (await fetch(`${base}/__mock`)).json();
+  const link = new URL(info.confirmationLinks[0].link);
+  assert.equal(link.pathname, '/student-registration/confirm');
+  const res = await confirm(link.searchParams.get('token'));
+  assert.equal(res.status, 200);
+  assert.equal(app.store.findPersonByEmail('neu@example.com').accountStatus, 'ACTIVE');
+});
+
+test('Bankverbindung BE-024: öffentlich lesbar, IBAN in Vierergruppen, Admin-PUT mit Prüfung', async () => {
+  let res = await fetch(`${base}/v1/association-bank-account`);
+  assert.equal(res.status, 200);
+  assert.equal(res.headers.get('cache-control'), 'no-store');
+  const body = await res.json();
+  assert.deepEqual(Object.keys(body).sort(), ['accountHolder', 'bankName', 'configured', 'iban']);
+  assert.equal(body.iban, 'DE89 3704 0044 0532 0130 00');
+  assert.equal(body.configured, true);
+  assert.match(body.bankName, /MOCKDATEN/);
+
+  const put = async (data, auth) =>
+    fetch(`${base}/v1/admin/association-bank-account`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...(auth ? { Authorization: `Bearer ${auth}` } : {}) },
+      body: JSON.stringify(data),
+    });
+  assert.equal((await put({ accountHolder: 'A', iban: 'DE89370400440532013000', bankName: 'B' })).status, 401);
+
+  const token = await adminToken();
+  res = await put({ accountHolder: 'A', iban: 'DE89370400440532013001', bankName: 'B' }, token);
+  assert.equal(res.status, 400);
+  const error = await res.json();
+  assert.deepEqual(error.fieldErrors.map((f) => f.field), ['iban']);
+  assert.ok(!JSON.stringify(error).includes('DE89370400440532013001'), 'IBAN darf nicht im Fehler stehen');
+
+  res = await put({ accountHolder: '[Kontoinhaber]', iban: 'DE89370400440532013000', bankName: 'B' }, token);
+  assert.deepEqual(await fieldsOf(res), ['accountHolder']);
+
+  res = await put({ accountHolder: 'Verein', iban: 'de02 1203 0000 0000 2020 51', bankName: 'Bank' }, token);
+  assert.equal(res.status, 200);
+  assert.equal((await res.json()).iban, 'DE02 1203 0000 0000 2020 51');
+});
+
+test('Bankverbindung: MOCK_BANK_ACCOUNT=placeholder liefert den Platzhalter (configured=false)', async () => {
+  const other = createApp({ port: 0, now: NOW, quiet: true, allowedOrigins: ['*'], bankAccountPlaceholder: true });
+  await new Promise((resolve) => other.server.listen(0, '127.0.0.1', resolve));
+  const res = await fetch(`http://127.0.0.1:${other.server.address().port}/v1/association-bank-account`);
+  assert.deepEqual(await res.json(), {
+    accountHolder: 'Mariendorf Moschee e.V.',
+    iban: 'DE00 0000 0000 0000 0000 00',
+    bankName: '[Kreditinstitut]',
+    configured: false,
+  });
+  await new Promise((resolve) => other.server.close(resolve));
+});
+
+test('Mail-Einstellungen BE-025: leer zu Beginn, PUT speichert, Passwort wird nie ausgegeben', async () => {
+  const token = await adminToken();
+  let res = await json('GET', '/v1/admin/mail-settings', undefined, token);
+  assert.deepEqual(await res.json(), {
+    host: null, port: 587, username: null, from: null, startTls: true, passwordSet: false, configured: false, updatedAt: null,
+  });
+
+  const put = (data) =>
+    fetch(`${base}/v1/admin/mail-settings`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    });
+  res = await put({ host: 'smtp.gmail.com', port: 587, username: 'verein@example.com', from: 'verein@example.com' });
+  assert.deepEqual(await fieldsOf(res), ['password']);
+
+  res = await put({ host: 'smtp gmail', port: 70000, from: 'kein-mail' });
+  assert.deepEqual(await fieldsOf(res), ['host', 'port', 'from']);
+
+  res = await put({ host: 'smtp.gmail.com', port: 587, username: 'verein@example.com', from: 'verein@example.com', password: 'abcd efgh ijkl mnop' });
+  assert.equal(res.status, 200);
+  let body = await res.json();
+  assert.equal(body.passwordSet, true);
+  assert.equal(body.configured, true);
+  assert.equal(body.updatedAt, '2026-11-08T14:00:00Z');
+  assert.ok(!JSON.stringify(body).includes('abcd'), 'Passwort darf nie ausgegeben werden');
+  assert.equal(app.store.mailSettings.password, 'abcdefghijklmnop', 'Gmail: Leerzeichen entfernt');
+
+  // ohne Passwort: gespeichertes bleibt
+  res = await put({ host: 'smtp.gmail.com', port: 465, username: 'verein@example.com', from: 'verein@example.com', startTls: false });
+  body = await res.json();
+  assert.equal(body.port, 465);
+  assert.equal(body.startTls, false);
+  assert.equal(body.passwordSet, true);
 });
 
 test('Gebetszeiten: heutige Zeiten, nächstes Gebet, Kalender für Jahr oder Monat', async () => {
@@ -269,21 +444,30 @@ test('Gebetszeiten: heutige Zeiten, nächstes Gebet, Kalender für Jahr oder Mon
   assert.equal(invalid.status, 400);
 });
 
-test('Kalender-Abo (.ics) und CORS-Preflight', async () => {
-  const ics = await fetch(`${base}/v1/prayer-times/calendar.ics?lang=de`);
-  assert.match(ics.headers.get('content-type'), /text\/calendar/);
+test('Kalender-Abo (.ics) wie im Backend und CORS-Preflight', async () => {
+  const ics = await fetch(`${base}/v1/prayer-times/calendar.ics?lang=tr`);
+  assert.match(ics.headers.get('content-type'), /^text\/calendar/);
+  assert.equal(ics.headers.get('content-disposition'), 'inline; filename="mariendorf-moschee-gebetszeiten.ics"');
+  assert.equal(ics.headers.get('cache-control'), 'max-age=3600, public');
   const text = await ics.text();
-  assert.match(text, /^BEGIN:VCALENDAR/);
-  assert.equal(text.match(/BEGIN:VEVENT/g).length, 300);
-  assert.match(text, /SUMMARY:Fadschr/);
+  assert.match(text, /^BEGIN:VCALENDAR\r\n/);
+  assert.equal(text.match(/BEGIN:VEVENT/g).length, (7 + 1 + 90) * 5); // heute −7 bis +90 Tage
+  assert.match(text, /UID:20261101-fajr@mariendorf-moschee\.de/);
+  assert.match(text, /SUMMARY:Öğle · Mariendorf Moschee/);
+  assert.match(text, /DESCRIPTION:İkamet \d\d:\d\d/);
+  assert.match(text, /DTSTART:\d{8}T\d{6}Z/);
+  assert.ok(text.split('\r\n').every((line) => Buffer.byteLength(line) <= 75), 'Zeilen höchstens 75 Bytes');
 
-  const preflight = await fetch(`${base}/v1/admin/cash-payers`, {
+  const fallback = await (await fetch(`${base}/v1/prayer-times/calendar.ics?lang=xx`)).text();
+  assert.match(fallback, /X-WR-CALNAME:Mariendorf Moschee – Prayer Times/);
+
+  const preflight = await fetch(`${base}/v1/admin/mail-settings`, {
     method: 'OPTIONS',
-    headers: { Origin: 'http://localhost:4200', 'Access-Control-Request-Method': 'GET' },
+    headers: { Origin: 'http://localhost:4200', 'Access-Control-Request-Method': 'PUT' },
   });
   assert.equal(preflight.status, 204);
   assert.equal(preflight.headers.get('access-control-allow-origin'), 'http://localhost:4200');
-  assert.match(preflight.headers.get('access-control-allow-headers'), /Authorization/);
+  assert.match(preflight.headers.get('access-control-allow-methods'), /PUT/);
 });
 
 test('Mock-Reset stellt die Testdaten wieder her', async () => {

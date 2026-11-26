@@ -1,0 +1,38 @@
+[
+  {
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000022",
+    "token": "Mock-gueltig_Kerem-Guenes000000000000000000",
+    "createdAt": "{{datetime-1}}",
+    "expiresAt": "{{datetime+1}}",
+    "usedAt": null,
+    "mailStatus": "SENT",
+    "note": "gültig: bestätigt das Konto von Kerem Güneş"
+  },
+  {
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000026",
+    "token": "Mock-gueltig_Lena-Becker0000000000000000000",
+    "createdAt": "{{datetime-1}}",
+    "expiresAt": "{{datetime+1}}",
+    "usedAt": null,
+    "mailStatus": "SENT",
+    "note": "gültig: bestätigt das Konto von Lena Becker"
+  },
+  {
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000021",
+    "token": "Mock-abgelaufen_Sara-Bayram0000000000000000",
+    "createdAt": "{{datetime-4}}",
+    "expiresAt": "{{datetime-2}}",
+    "usedAt": null,
+    "mailStatus": "SENT",
+    "note": "abgelaufen → 410 EMAIL_CONFIRMATION_TOKEN_EXPIRED"
+  },
+  {
+    "personIdentifier": "5e0c1a00-0000-4000-8000-000000000001",
+    "token": "Mock-benutzt_Elif-Demir00000000000000000000",
+    "createdAt": "{{datetime-117}}",
+    "expiresAt": "{{datetime-115}}",
+    "usedAt": "{{datetime-116}}",
+    "mailStatus": "SENT",
+    "note": "schon benutzt → 409 EMAIL_CONFIRMATION_TOKEN_ALREADY_USED"
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "accountHolder": "Testkonto Mariendorf Moschee (Mockdaten)",
+  "iban": "DE89370400440532013000",
+  "bankName": "MOCKDATEN – keine echte Bankverbindung",
+  "updatedAt": "{{datetime-30}}",
+  "note": "Bewusst als Testkonto erkennbar, damit niemand auf der öffentlichen Mock-Seite echtes Geld überweist. MOCK_BANK_ACCOUNT=placeholder liefert stattdessen den Platzhalter (configured=false)."
+}
